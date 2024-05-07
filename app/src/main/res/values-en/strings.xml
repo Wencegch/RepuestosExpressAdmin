@@ -1,0 +1,31 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string name="app_name">RepuestosExpressAdmin</string>
+    <string name="sugerencias">Suggestions</string>
+    <string name="pedidos">Orders</string>
+    <string name="productos">Products</string>
+    <string name="añadir_producto">Click where you want to add a new product</string>
+    <string name="seleccion_sugerencias">Select for suggestions</string>
+    <string name="nuevo_producto">Add product</string>
+    <string name="nombre">Name</string>
+    <string name="precio">Price</string>
+    <string name="seleccionar_imagen">Select image</string>
+    <string name="permisos_galeria_denegados">Gallery permits denied</string>
+    <string name="familias">Families</string>
+    <string name="borrar_producto">Delete product?</string>
+    <string name="aceptar">Accept</string>
+    <string name="cancelar">Cancel</string>
+    <string name="registro_insertado">Record inserted correctly</string>
+    <string name="requerido">Required</string>
+    <string name="ingresar_precio_valido">Enter a valid price</string>
+    <string name="ingresar_nombre">Enter the product name</string>
+    <string name="ingresar_precio">Enter the price of the product</string>
+    <string name="producto_eliminado">Product deleted</string>
+    <string name="perder_informacion_producto">All information related to this product will be lost, are you sure?</string>
+    <string name="añadir_sugerencias">Add suggestions</string>
+    <string name="eliminar">Delete</string>
+    <string name="añadir">Add</string>
+    <string name="informacion">Information</string>
+    <string name="nueva_familia">Add family</string>
+    <string name="familia_eliminada">Family eliminated</string>
+</resources>

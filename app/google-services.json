@@ -1,0 +1,84 @@
+{
+  "project_info": {
+    "project_number": "633452063295",
+    "project_id": "repuestosexpress-dea40",
+    "storage_bucket": "repuestosexpress-dea40.appspot.com"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:633452063295:android:cb26bc77eace134096a68a",
+        "android_client_info": {
+          "package_name": "com.repuestosexpress"
+        }
+      },
+      "oauth_client": [
+        {
+          "client_id": "633452063295-sk7cg5jo7cakso37jnqbbqkeurq49hfd.apps.googleusercontent.com",
+          "client_type": 1,
+          "android_info": {
+            "package_name": "com.repuestosexpress",
+            "certificate_hash": "e9ce0389dd530a26c618049d483911d48b6a8370"
+          }
+        },
+        {
+          "client_id": "633452063295-rlh1bp7djjq01o16lfjvint93r45okbu.apps.googleusercontent.com",
+          "client_type": 3
+        }
+      ],
+      "api_key": [
+        {
+          "current_key": "AIzaSyBWtQAOes9yk84StxGWogRENxmhbNG63P4"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": [
+            {
+              "client_id": "633452063295-rlh1bp7djjq01o16lfjvint93r45okbu.apps.googleusercontent.com",
+              "client_type": 3
+            }
+          ]
+        }
+      }
+    },
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:633452063295:android:47d0d53f57a4c37a96a68a",
+        "android_client_info": {
+          "package_name": "com.repuestosexpressadmin"
+        }
+      },
+      "oauth_client": [
+        {
+          "client_id": "633452063295-683guq2lepfe5ub34ankallkgl60sg6o.apps.googleusercontent.com",
+          "client_type": 1,
+          "android_info": {
+            "package_name": "com.repuestosexpressadmin",
+            "certificate_hash": "e9ce0389dd530a26c618049d483911d48b6a8370"
+          }
+        },
+        {
+          "client_id": "633452063295-rlh1bp7djjq01o16lfjvint93r45okbu.apps.googleusercontent.com",
+          "client_type": 3
+        }
+      ],
+      "api_key": [
+        {
+          "current_key": "AIzaSyBWtQAOes9yk84StxGWogRENxmhbNG63P4"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": [
+            {
+              "client_id": "633452063295-rlh1bp7djjq01o16lfjvint93r45okbu.apps.googleusercontent.com",
+              "client_type": 3
+            }
+          ]
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}
