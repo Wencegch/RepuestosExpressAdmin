@@ -33,18 +33,6 @@ class SubirFamiliaActivity : AppCompatActivity(), Firebase.OnSubirFamiliaListene
     private var imagenUri: Uri? = null
     private var bitmap: Bitmap? = null
 
-    private val seleccionarImagenLauncher =
-        registerForActivityResult(ActivityResultContracts.StartActivityForResult()) { result ->
-            if (result.resultCode == RESULT_OK) {
-                val data: Intent? = result.data
-                imagenUri = data?.data!!
-                // Cargar la imagen en el ImageView si la URI de la imagen no es nula
-                if (imagenUri != null) {
-                    imgSubirFamilia.setImageURI(imagenUri)
-                    Log.i("Imagen Uri", "$imagenUri")
-                }
-            }
-        }
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_subir_familia)
@@ -66,7 +54,11 @@ class SubirFamiliaActivity : AppCompatActivity(), Firebase.OnSubirFamiliaListene
                 if(txtInfoFamilia.text.isNotEmpty()) {
                     val familia = Familia(txtNombreFamilia.text.toString(), txtInfoFamilia.text.toString(), "")
                     firebase.crearFamilia(familia, this)
+                }else{
+                    txtInfoFamilia.error = getString(R.string.requerido)
                 }
+            }else{
+                txtNombreFamilia.error = getString(R.string.requerido)
             }
         }
     }
@@ -94,12 +86,27 @@ class SubirFamiliaActivity : AppCompatActivity(), Firebase.OnSubirFamiliaListene
         }
     }
 
+
     private val requestPermissionLauncher =
         registerForActivityResult(ActivityResultContracts.RequestPermission()) { isGranted: Boolean ->
             if (isGranted) {
                 Log.i("Permission: ", "Granted")
+                abrirGaleria()
             } else {
                 Log.i("Permission: ", "Denied")
+            }
+        }
+
+    private val seleccionarImagenLauncher =
+        registerForActivityResult(ActivityResultContracts.StartActivityForResult()) { result ->
+            if (result.resultCode == RESULT_OK) {
+                val data: Intent? = result.data
+                imagenUri = data?.data!!
+                // Cargar la imagen en el ImageView si la URI de la imagen no es nula
+                if (imagenUri != null) {
+                    imgSubirFamilia.setImageURI(imagenUri)
+                    Log.i("Imagen Uri", "$imagenUri")
+                }
             }
         }
 
@@ -132,14 +139,15 @@ class SubirFamiliaActivity : AppCompatActivity(), Firebase.OnSubirFamiliaListene
                 firebase.subirImagenFamilia(idFamilia, null, this)
             }
         } else {
-            Log.e("onProductoSubido", "El id del producto es nulo")
+            Log.e("onProductoSubido", "El Id del producto es nulo")
 
         }
     }
 
     override fun onImageSubida(idFamilia: String?) {
-        val returnIntent = Intent()
-        returnIntent.putExtra("id", idFamilia)
+        val returnIntent = Intent().apply {
+            putExtra("idFamilia", idFamilia)
+        }
         setResult(RESULT_OK, returnIntent)
         finish()
         Utils.Toast(applicationContext, getString(R.string.registro_insertado))    }

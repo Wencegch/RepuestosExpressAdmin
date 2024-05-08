@@ -1,11 +1,13 @@
 package com.repuestosexpressadmin.controllers
 
+import RecyclerAdapterProductos
 import android.content.Intent
 import android.os.Bundle
 import android.util.Log
 import android.view.ActionMode
 import android.view.Menu
 import android.view.MenuItem
+import androidx.activity.result.contract.ActivityResultContracts
 import androidx.appcompat.app.AppCompatActivity
 import androidx.core.content.ContextCompat
 import androidx.recyclerview.widget.LinearLayoutManager
@@ -18,7 +20,6 @@ import com.iamageo.library.position
 import com.iamageo.library.title
 import com.iamageo.library.type
 import com.repuestosexpressadmin.R
-import com.repuestosexpressadmin.adapters.RecyclerAdapterProductos
 import com.repuestosexpressadmin.models.Producto
 import com.repuestosexpressadmin.utils.Firebase
 import com.repuestosexpressadmin.utils.Utils
@@ -61,7 +62,7 @@ class ProductosActivity : AppCompatActivity() {
             override fun onItemLongClick(position: Int) {
                 Utils.Toast(this@ProductosActivity, "Posición $position")
 
-                Log.d("OnItemLongClickListener", "${productosAdapter.getProducto(position).id}")
+                Log.d("OnItemLongClickListener", productosAdapter.getProducto(position).id)
 
                 mActionMode = startActionMode(mActionCallback)!!
                 posicionPulsada = position
@@ -70,9 +71,26 @@ class ProductosActivity : AppCompatActivity() {
         })
     }
 
+    //Menu simple añadir
     override fun onCreateOptionsMenu(menu: Menu?): Boolean {
         menuInflater.inflate(R.menu.add_menu, menu)
         return super.onCreateOptionsMenu(menu)
+    }
+
+    private val subirFamiliaLauncher = registerForActivityResult(ActivityResultContracts.StartActivityForResult()) { result ->
+        if (result.resultCode == RESULT_OK) {
+            val data: Intent? = result.data
+            val idProductoNuevo = data?.getStringExtra("idProducto")
+            if (!idProductoNuevo.isNullOrEmpty()) {
+                // Obtener el nuevo producto utilizando el ID y agregarlo a la lista
+                Firebase().obtenerProductoPorId(idProductoNuevo) { nuevoProducto ->
+                    if (nuevoProducto != null && !productos.contains(nuevoProducto)) {
+                        productos.add(nuevoProducto)
+                        productosAdapter.notifyItemInserted(productos.size)
+                    }
+                }
+            }
+        }
     }
 
     override fun onOptionsItemSelected(item: MenuItem): Boolean {
@@ -82,7 +100,7 @@ class ProductosActivity : AppCompatActivity() {
                 val i = Intent(this, SubirProductoActivity::class.java)
                 i.putExtra("idFamilia", idFamilia)
                 Log.d("Id Familia", idFamilia)
-                startActivity(i)
+                subirFamiliaLauncher.launch(i)
             }
         }
         return super.onOptionsItemSelected(item)

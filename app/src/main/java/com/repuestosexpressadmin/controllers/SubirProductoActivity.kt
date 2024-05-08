@@ -170,8 +170,9 @@ class SubirProductoActivity : AppCompatActivity(), Firebase.OnSubirProductoListe
 
 
     override fun onImageSubida(idProducto: String?) {
-        val returnIntent = Intent()
-        returnIntent.putExtra("id", idProducto)
+        val returnIntent = Intent().apply {
+            putExtra("idProducto", idProducto)
+        }
         setResult(RESULT_OK, returnIntent)
         finish()
         Utils.Toast(applicationContext, getString(R.string.registro_insertado))

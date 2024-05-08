@@ -6,6 +6,7 @@ import android.util.Log
 import android.view.ActionMode
 import android.view.Menu
 import android.view.MenuItem
+import androidx.activity.result.contract.ActivityResultContracts
 import androidx.appcompat.app.AppCompatActivity
 import androidx.core.content.ContextCompat
 import androidx.recyclerview.widget.LinearLayoutManager
@@ -95,15 +96,31 @@ class FamiliasActivity : AppCompatActivity() {
         return super.onCreateOptionsMenu(menu)
     }
 
-    override fun onOptionsItemSelected(item: MenuItem): Boolean {
-        val itemId = item.itemId
-        when (itemId) {
-            R.id.btn_Add -> {
-                val i = Intent(this, SubirFamiliaActivity::class.java)
-                startActivity(i)
+    private val subirFamiliaLauncher = registerForActivityResult(ActivityResultContracts.StartActivityForResult()) { result ->
+        if (result.resultCode == RESULT_OK) {
+            val data: Intent? = result.data
+            val idFamiliaNueva = data?.getStringExtra("idFamilia")
+            if (!idFamiliaNueva.isNullOrEmpty()) {
+                // Obtener la nueva familia utilizando el ID y agregarla a la lista
+                Firebase().obtenerFamiliaPorId(idFamiliaNueva) { nuevaFamilia ->
+                    if (nuevaFamilia != null && !familias.contains(nuevaFamilia)) {
+                        familias.add(nuevaFamilia)
+                        familiasAdapter.notifyItemInserted(familias.size)
+                    }
+                }
             }
         }
-        return super.onOptionsItemSelected(item)
+    }
+
+    override fun onOptionsItemSelected(item: MenuItem): Boolean {
+        when (item.itemId) {
+            R.id.btn_Add -> {
+                val i = Intent(this, SubirFamiliaActivity::class.java)
+                subirFamiliaLauncher.launch(i)
+                return true
+            }
+            else -> return super.onOptionsItemSelected(item)
+        }
     }
 
     private val mActionCallback: ActionMode.Callback = object : ActionMode.Callback {
@@ -124,7 +141,7 @@ class FamiliasActivity : AppCompatActivity() {
 
                 BeautifulDialog.build(this@FamiliasActivity)
                     .title(getString(R.string.borrar_producto), titleColor = R.color.black)
-                    .description(getString(R.string.perder_informacion_producto))
+                    .description(getString(R.string.perder_informacion_familia))
                     .type(type = BeautifulDialog.TYPE.ALERT)
                     .position(BeautifulDialog.POSITIONS.CENTER)
                     .onPositive(text = getString(R.string.aceptar), shouldIDismissOnClick = true) {

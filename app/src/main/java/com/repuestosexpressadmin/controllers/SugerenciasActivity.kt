@@ -1,5 +1,6 @@
 package com.repuestosexpressadmin.controllers
 
+import RecyclerAdapterProductos
 import android.os.Bundle
 import android.util.Log
 import android.view.Menu
@@ -9,7 +10,6 @@ import androidx.core.content.ContextCompat
 import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.RecyclerView
 import com.repuestosexpressadmin.R
-import com.repuestosexpressadmin.adapters.RecyclerAdapterProductos
 import com.repuestosexpressadmin.models.Producto
 import com.repuestosexpressadmin.utils.Firebase
 import com.repuestosexpressadmin.utils.Utils
@@ -34,7 +34,7 @@ class SugerenciasActivity : AppCompatActivity() {
         recyclerView = findViewById(R.id.recyclerViewSugerencias)// Inicializa el RecyclerView y el Adapter
 
         recyclerView.layoutManager = LinearLayoutManager(this) // Agrega un LinearLayoutManager
-        productosAdapter = RecyclerAdapterProductos(productos, enableLongClick = false)
+        productosAdapter = RecyclerAdapterProductos(productos)
         recyclerView.adapter = productosAdapter
 
         // Obtiene las familias de Firebase y las agrega a la lista

@@ -28,4 +28,5 @@
     <string name="informacion">Information</string>
     <string name="nueva_familia">Add family</string>
     <string name="familia_eliminada">Family eliminated</string>
+    <string name="perder_informacion_familia">All information related to this family will be lost, are you sure?</string>
 </resources>

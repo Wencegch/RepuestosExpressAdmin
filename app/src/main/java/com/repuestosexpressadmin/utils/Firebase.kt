@@ -46,6 +46,28 @@ class Firebase {
         }
     }
 
+    fun obtenerFamiliaPorId(idFamilia: String, onComplete: (Familia?) -> Unit) {
+        referenceFamilias.document(idFamilia).get().addOnSuccessListener { document ->
+            if (document != null && document.exists()) {
+                val id = document.id
+                val nombre = document.getString("nombre")
+                val info = document.getString("info")
+                val imgUrl = document.getString("imgUrl")
+                if (nombre != null && info != null && imgUrl != null) {
+                    val familia = Familia(id, nombre, info, imgUrl)
+                    onComplete(familia)
+                } else {
+                    onComplete(null) // Devolver null si falta algún campo
+                }
+            } else {
+                onComplete(null) // Devolver null si no se encuentra ningún documento
+            }
+        }.addOnFailureListener { exception ->
+            Log.d("Error", "$exception")
+            onComplete(null) // Devolver null en caso de error
+        }
+    }
+
     fun crearFamilia(familia: Familia, listenerSubirFamiliaActivity: OnSubirFamiliaListener){
         val datosFamilia: MutableMap<String, Any> = HashMap()
         datosFamilia["nombre"] = familia.nombre
@@ -177,6 +199,30 @@ class Firebase {
         }.addOnFailureListener { exception ->
             Log.d("Error", "$exception")
             onComplete(emptyList()) // Devolver una lista vacía en caso de error
+        }
+    }
+
+    fun obtenerProductoPorId(idProducto: String, onComplete: (Producto?) -> Unit) {
+        referenceProductos.document(idProducto).get().addOnSuccessListener { document ->
+            if (document != null && document.exists()) {
+                val idProducto = document.id
+                val nombre = document.getString("nombre")
+                val precio = document.getDouble("precio")
+                val imgUrl = document.getString("imgUrl")
+                val idFamilia = document.getString("idFamilia")
+
+                if (nombre != null && precio != null && imgUrl != null && idFamilia != null) {
+                    val producto = Producto(idProducto, nombre, precio.toDouble(), imgUrl, idFamilia)
+                    onComplete(producto)
+                } else {
+                    onComplete(null) // Devolver null si falta algún campo
+                }
+            } else {
+                onComplete(null) // Devolver null si no se encuentra ningún documento
+            }
+        }.addOnFailureListener { exception ->
+            Log.d("Error", "$exception")
+            onComplete(null) // Devolver null en caso de error
         }
     }
 
