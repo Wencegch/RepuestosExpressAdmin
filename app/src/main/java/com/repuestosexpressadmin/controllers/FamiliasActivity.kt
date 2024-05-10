@@ -28,8 +28,8 @@ class FamiliasActivity : AppCompatActivity() {
 
     private lateinit var familiasAdapter: RecyclerAdapterFamilias
     private lateinit var recyclerView: RecyclerView
-    private lateinit var familias: ArrayList<Familia>
-    private lateinit var mActionMode: ActionMode
+    private lateinit var familiasArray: ArrayList<Familia>
+    private var mActionMode: ActionMode? = null
     private var posicionPulsada: Int = 0
 
     override fun onCreate(savedInstanceState: Bundle?) {
@@ -42,18 +42,18 @@ class FamiliasActivity : AppCompatActivity() {
             actionBar.setBackgroundDrawable(ContextCompat.getDrawable(this, R.color.green))
         }
 
-        familias = ArrayList()// Inicializa la lista de familias
+        familiasArray = ArrayList()// Inicializa la lista de familias
         recyclerView = findViewById(R.id.recyclerViewFamilias)// Inicializa el RecyclerView y el Adapter
 
         recyclerView.layoutManager = LinearLayoutManager(this) // Agrega un LinearLayoutManager
-        familiasAdapter = RecyclerAdapterFamilias(familias)
+        familiasAdapter = RecyclerAdapterFamilias(familiasArray)
         recyclerView.adapter = familiasAdapter
 
         // Obtiene las familias de Firebase y las agrega a la lista
         Firebase().obtenerFamilias { listaFamilias ->
-            familias.clear()
+            familiasArray.clear()
             // Agrega cada familia a la lista familias
-            familias.addAll(listaFamilias)
+            familiasArray.addAll(listaFamilias)
             // Notifica al adapter que los datos han cambiado
             familiasAdapter.notifyDataSetChanged()
 
@@ -61,32 +61,41 @@ class FamiliasActivity : AppCompatActivity() {
 
         // Establecer un Listener para manejar los clics en los elementos del RecyclerView
         familiasAdapter.setOnItemClickListener(object : RecyclerAdapterFamilias.OnItemClickListener {
-            /**
-             * Método que se llama cuando se hace clic en un elemento del RecyclerView.
-             * @param position La posición del elemento seleccionado en la lista.
-             */
             override fun onItemClick(position: Int) {
                 // Obtener el elemento seleccionado del array
-                val familiaSeleccionada = familias.get(position)
-
+                val familiaSeleccionada = familiasArray.get(position)
                 val intent = Intent(this@FamiliasActivity, ProductosActivity::class.java).apply {
                     putExtra("Idfamilia", familiaSeleccionada.id)
                     putExtra("Nombre", familiaSeleccionada.nombre)
                 }
-                Log.d("Id Familia", familiaSeleccionada.id)
-                Log.d("Nombre", familiaSeleccionada.nombre)
-                Log.d("Información", familiaSeleccionada.info)
-                Log.d("Imagen URL", familiaSeleccionada.imgUrl)
-
                 startActivity(intent)
             }
         })
 
         familiasAdapter.setOnItemLongClickListener(object : RecyclerAdapterFamilias.OnItemLongClickListener{
             override fun onItemLongClick(position: Int) {
-                Utils.Toast(this@FamiliasActivity, "Posición $position")
-                mActionMode = startActionMode(mActionCallback)!!
+                val familiaSeleccionada = familiasArray[position]
+
+                // Si el producto está seleccionado, deselecciónalo
+                if(familiaSeleccionada.selected){
+                    familiaSeleccionada.selected = false
+                }else{
+                    // Si el producto no está seleccionado, selecciona este y deselecciona los demás
+                    familiasAdapter.deseleccionarTodos()
+                    familiaSeleccionada.selected = true
+                }
+                // Notificar al adaptador sobre los cambios
+                familiasAdapter.notifyDataSetChanged()
+
+                // Actualizar la posición pulsada
                 posicionPulsada = position
+
+                // Iniciar el modo de acción si es necesario
+                if (familiaSeleccionada.selected && mActionMode == null) {
+                    mActionMode = startActionMode(mActionCallback)!!
+                } else if (!familiaSeleccionada.selected && mActionMode != null) {
+                    mActionMode!!.finish()
+                }
             }
         })
     }
@@ -103,9 +112,9 @@ class FamiliasActivity : AppCompatActivity() {
             if (!idFamiliaNueva.isNullOrEmpty()) {
                 // Obtener la nueva familia utilizando el ID y agregarla a la lista
                 Firebase().obtenerFamiliaPorId(idFamiliaNueva) { nuevaFamilia ->
-                    if (nuevaFamilia != null && !familias.contains(nuevaFamilia)) {
-                        familias.add(nuevaFamilia)
-                        familiasAdapter.notifyItemInserted(familias.size)
+                    if (nuevaFamilia != null && !familiasArray.contains(nuevaFamilia)) {
+                        familiasArray.add(nuevaFamilia)
+                        familiasAdapter.notifyItemInserted(familiasArray.size)
                     }
                 }
             }
@@ -140,7 +149,7 @@ class FamiliasActivity : AppCompatActivity() {
             if (itemId == R.id.btn_Borrar) {
 
                 BeautifulDialog.build(this@FamiliasActivity)
-                    .title(getString(R.string.borrar_producto), titleColor = R.color.black)
+                    .title(getString(R.string.borrar_familia), titleColor = R.color.black)
                     .description(getString(R.string.perder_informacion_familia))
                     .type(type = BeautifulDialog.TYPE.ALERT)
                     .position(BeautifulDialog.POSITIONS.CENTER)
@@ -150,7 +159,7 @@ class FamiliasActivity : AppCompatActivity() {
 
                         Firebase().borrarFamiliaYProductos(idFamilia) {
                             Utils.Toast(this@FamiliasActivity, getString(R.string.familia_eliminada))
-                            familias.removeAt(posicionPulsada)
+                            familiasArray.removeAt(posicionPulsada)
                             familiasAdapter.notifyItemRemoved(posicionPulsada)
                         }
                     }
@@ -161,6 +170,9 @@ class FamiliasActivity : AppCompatActivity() {
             return true
         }
 
-        override fun onDestroyActionMode(actionMode: ActionMode) { }
+        override fun onDestroyActionMode(actionMode: ActionMode) {
+            familiasAdapter.deseleccionarTodos()
+            mActionMode = null
+        }
     }
 }

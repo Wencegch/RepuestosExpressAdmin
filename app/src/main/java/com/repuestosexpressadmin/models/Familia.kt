@@ -20,19 +20,34 @@ class Familia {
         _imgUrl = imgUrl
     }
 
-    val id: String
+    var id: String
         get() = _id
+        set(value) {
+            _id = value
+        }
 
-    val nombre: String
+    var nombre: String
         get() = _nombre
+        set(value) {
+            _nombre = value
+        }
 
-    val info: String
+    var info: String
         get() = _info
+        set(value) {
+            _info = value
+        }
 
-    val imgUrl: String
+    var imgUrl: String
         get() = _imgUrl
+        set(value) {
+            _imgUrl = value
+        }
 
-    val selected: Boolean
+    var selected: Boolean
         get() = _selected
+        set(value) {
+            _selected = value
+        }
 
 }

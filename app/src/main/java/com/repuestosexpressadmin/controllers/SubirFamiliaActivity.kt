@@ -150,5 +150,6 @@ class SubirFamiliaActivity : AppCompatActivity(), Firebase.OnSubirFamiliaListene
         }
         setResult(RESULT_OK, returnIntent)
         finish()
-        Utils.Toast(applicationContext, getString(R.string.registro_insertado))    }
+        Utils.Toast(applicationContext, getString(R.string.registro_insertado))
+    }
 }

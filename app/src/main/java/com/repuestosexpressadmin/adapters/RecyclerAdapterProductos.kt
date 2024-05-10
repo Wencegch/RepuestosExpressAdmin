@@ -3,6 +3,7 @@ import android.view.View
 import android.view.ViewGroup
 import android.widget.ImageView
 import android.widget.TextView
+import androidx.core.content.ContextCompat
 import androidx.recyclerview.widget.RecyclerView
 import androidx.swiperefreshlayout.widget.CircularProgressDrawable
 import com.bumptech.glide.Glide
@@ -26,7 +27,13 @@ class RecyclerAdapterProductos(private var listProductos: ArrayList<Producto>) :
         val producto: Producto = listProductos[position]
 
         holder.nombreProducto.text = producto.nombre
-        holder.precioProducto.text = producto.precio.toString() + "€"
+        holder.precioProducto.text = holder.itemView.context.getString(R.string.precio_formato, producto.precio)
+
+        if(producto.selected){
+            holder.itemView.setBackgroundColor(ContextCompat.getColor(holder.itemView.context, R.color.green))
+        }else{
+            holder.itemView.setBackgroundColor(ContextCompat.getColor(holder.itemView.context, R.color.white))
+        }
 
         // Configuración del CircularProgressDrawable
         progressDrawable = CircularProgressDrawable(holder.itemView.context)
@@ -83,4 +90,12 @@ class RecyclerAdapterProductos(private var listProductos: ArrayList<Producto>) :
     fun setOnItemLongClickListener(listener: OnItemLongClickListener) {
         onItemLongClickListener = listener
     }
+
+    fun deseleccionarTodos() {
+        for (producto in listProductos) {
+            producto.selected = false
+        }
+        notifyDataSetChanged()
+    }
+
 }

@@ -28,4 +28,6 @@
     <string name="nueva_familia">Añadir familia</string>
     <string name="familia_eliminada">Familia eliminada</string>
     <string name="perder_informacion_familia">Se perderá toda la información relacionada a esta familia, ¿Estás seguro?</string>
+    <string name="borrar_familia">¿Borrar familia?</string>
+    <string name="precio_formato" translatable="false">%1$.2f€</string>
 </resources>

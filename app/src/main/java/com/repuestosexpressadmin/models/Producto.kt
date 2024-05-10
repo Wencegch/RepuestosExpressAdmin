@@ -29,26 +29,39 @@ class Producto {
 
     var id: String
         get() = _id
-        set(value) { _id = value }
+        set(value) {
+            _id = value
+        }
 
     var nombre: String
         get() = _nombre
-        set(value) { _nombre = value }
+        set(value) {
+            _nombre = value
+        }
 
     var precio: Double
         get() = _precio
-        set(value) { _precio = value }
+        set(value) {
+            _precio = value
+        }
 
     var imgUrl: String
         get() = _imgUrl
-        set(value) { _imgUrl = value }
+        set(value) {
+            _imgUrl = value
+        }
 
     var idFamilia: String
         get() = _idFamilia
-        set(value) { _idFamilia = value }
+        set(value) {
+            _idFamilia = value
+        }
 
     var selected: Boolean
         get() = _selected
-        set(value) { _selected = value }
+        set(value) {
+            _selected = value
+        }
+
 }
 

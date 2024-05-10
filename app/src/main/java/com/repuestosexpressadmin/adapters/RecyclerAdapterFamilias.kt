@@ -5,6 +5,7 @@ import android.view.View
 import android.view.ViewGroup
 import android.widget.ImageView
 import android.widget.TextView
+import androidx.core.content.ContextCompat
 import androidx.recyclerview.widget.RecyclerView
 import androidx.swiperefreshlayout.widget.CircularProgressDrawable
 import com.bumptech.glide.Glide
@@ -17,6 +18,7 @@ class RecyclerAdapterFamilias(private var listFamilias: ArrayList<Familia>): Rec
     private lateinit var onItemClickListener: OnItemClickListener
     private lateinit var onItemLongClickListener: RecyclerAdapterProductos.OnItemLongClickListener
 
+
     override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): ViewHolder {
         val view = LayoutInflater.from(parent.context).inflate(R.layout.item_familia, parent, false)
         return ViewHolder(view)
@@ -27,6 +29,12 @@ class RecyclerAdapterFamilias(private var listFamilias: ArrayList<Familia>): Rec
 
         holder.nombre.text = familia.nombre
         holder.info.text = familia.info
+
+        if(familia.selected){
+            holder.itemView.setBackgroundColor(ContextCompat.getColor(holder.itemView.context, R.color.green))
+        }else{
+            holder.itemView.setBackgroundColor(ContextCompat.getColor(holder.itemView.context, R.color.white))
+        }
 
         //Configuración del CircularProgressDrawable
         progressDrawable = CircularProgressDrawable(holder.itemView.context)
@@ -105,5 +113,12 @@ class RecyclerAdapterFamilias(private var listFamilias: ArrayList<Familia>): Rec
      */
     fun setOnItemLongClickListener(listener: OnItemLongClickListener) {
         onItemLongClickListener = listener
+    }
+
+    fun deseleccionarTodos() {
+        for (familia in listFamilias) {
+            familia.selected = false
+        }
+        notifyDataSetChanged()
     }
 }
