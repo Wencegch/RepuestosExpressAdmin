@@ -90,7 +90,7 @@ class Firebase {
             storageRef.putFile(imagenUri)
                 .addOnSuccessListener {
                     // Obtener la URL de descarga de la imagen subida
-                    storageRef.downloadUrl.addOnSuccessListener { downloadUrl -> //3 -> cuando tenemos la url, modificamos ese elemento
+                    storageRef.downloadUrl.addOnSuccessListener { downloadUrl ->//cuando tenemos la url, modificamos ese elemento
                         val url = downloadUrl.toString()
                         //modificamos el producto, teniendo ahora la url de descarga
                         referenceFamilias.document(id)
@@ -128,7 +128,7 @@ class Firebase {
             .delete()
             .addOnSuccessListener {
                 // Eliminación exitosa de la familia en Firestore
-
+                Log.d("Familia borrada", "Sí")
                 // Obtener la referencia del almacenamiento para la imagen asociada a la familia
                 val storageRef = storage.reference.child("familias/$idFamilia")
                 // Eliminar la imagen asociada a la familia desde Firebase Storage
@@ -149,7 +149,7 @@ class Firebase {
                             document.reference.delete()
                                 .addOnSuccessListener {
                                     // Eliminación exitosa del producto en Firestore
-
+                                    Log.d("Producto borrado", "Sí")
                                     // Obtener la referencia del almacenamiento para la imagen asociada al producto
                                     val productStorageRef = storage.reference.child("productos/$productId")
                                     // Eliminar la imagen asociada al producto desde Firebase Storage
@@ -311,12 +311,11 @@ class Firebase {
     }
 
     fun borrarProducto(idProducto: String, imgUrl: String?, onComplete: () -> Unit) {
-        val referenciaProducto = referenceProductos.document(idProducto)
-
-        referenciaProducto.delete()
+        referenceProductos.document(idProducto)
+            .delete()
             .addOnSuccessListener {
                 // Eliminación exitosa del documento de producto en Firestore
-
+                Log.d("Producto borrado", "Sí")
                 // Si la imagen tiene una URL asociada, también la borramos del almacenamiento
                 if (!imgUrl.isNullOrEmpty()) {
                     val imagenRef = storage.getReferenceFromUrl(imgUrl)
@@ -340,6 +339,57 @@ class Firebase {
                 Log.e("Error", "Error al borrar el producto de Firestore: $exception")
                 onComplete()
             }
+    }
+
+    //Sugerencias
+
+    fun actualizarSugerencias(idsProductosSeleccionados: MutableList<String>) {
+        // Cambiamos las sugerencias que había a false
+        referenceProductos
+            .whereEqualTo("sugerencias", true)
+            .get()
+            .addOnSuccessListener { querySnapshot ->
+                if (!querySnapshot.isEmpty) {
+                    querySnapshot.documents.forEach { document ->
+                        document.reference.update("sugerencias", false)
+                            .addOnSuccessListener {
+                                // Cuando haya cambiado el último, añadimos los nuevos
+                                if (document == querySnapshot.documents.last()) {
+                                    insertarRegistrosProductos(idsProductosSeleccionados)
+                                }
+                            }
+                            .addOnFailureListener { e ->
+                                // Manejar error al actualizar sugerencias
+                                Log.e("Error", "Error al actualizar sugerencias: $e")
+                            }
+                    }
+                } else {
+                    // Si la tabla estaba vacía, insertamos los nuevos directamente
+                    insertarRegistrosProductos(idsProductosSeleccionados)
+                    Log.d("Exito", "Exito al insertar sugerencias")
+                }
+            }
+            .addOnFailureListener { e ->
+                // Manejar error al obtener productos con sugerencias
+                Log.e("Error", "Error al obtener productos con sugerencias: $e")
+            }
+    }
+
+    private fun insertarRegistrosProductos(idsProductosSeleccionados: MutableList<String>) {
+        // Añadimos los nuevos
+        idsProductosSeleccionados.forEach { productId ->
+            referenceProductos
+                .document(productId)
+                .update("sugerencias", true)
+                .addOnSuccessListener {
+                    // Manejar éxito al insertar sugerencias
+                    Log.d("Exito", "Exito al insertar sugerencias")
+                }
+                .addOnFailureListener { e ->
+                    // Manejar error al insertar sugerencias
+                    Log.e("Error", "Error al insertar sugerencias: $e")
+                }
+        }
     }
 
 }

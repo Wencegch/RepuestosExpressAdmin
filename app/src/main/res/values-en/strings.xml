@@ -30,4 +30,5 @@
     <string name="familia_eliminada">Family eliminated</string>
     <string name="perder_informacion_familia">All information related to this family will be lost, are you sure?</string>
     <string name="borrar_familia">Delete family?</string>
+    <string name="sugerencias_enviadas">Updated suggestions</string>
 </resources>

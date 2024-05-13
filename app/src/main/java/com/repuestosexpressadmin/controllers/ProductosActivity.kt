@@ -28,7 +28,7 @@ class ProductosActivity : AppCompatActivity() {
 
     private lateinit var productosAdapter: RecyclerAdapterProductos
     private lateinit var recyclerView: RecyclerView
-    private lateinit var productosArray: ArrayList<Producto>
+    private lateinit var productos: ArrayList<Producto>
     private lateinit var idFamilia: String
     private var mActionMode: ActionMode? = null
     private var posicionPulsada: Int = 0
@@ -39,28 +39,29 @@ class ProductosActivity : AppCompatActivity() {
 
         idFamilia = intent.getStringExtra("Idfamilia").toString()
         val nombreFamilia = intent.getStringExtra("Nombre")
-        val actionBar = supportActionBar
-        if (actionBar != null) {
-            actionBar.title = nombreFamilia
-            actionBar.setBackgroundDrawable(ContextCompat.getDrawable(this, R.color.green))
+
+        supportActionBar?.apply {
+            title = nombreFamilia
+            setBackgroundDrawable(ContextCompat.getDrawable(this@ProductosActivity, R.color.green))
         }
 
-        productosArray = ArrayList()
+        productos = ArrayList()
         recyclerView = findViewById(R.id.recyclerViewProductos)
         recyclerView.layoutManager = LinearLayoutManager(this)
-        productosAdapter = RecyclerAdapterProductos(productosArray)
+        productosAdapter = RecyclerAdapterProductos(productos)
         recyclerView.adapter = productosAdapter
 
         Firebase().obtenerProductosFamilia(idFamilia) { listaProductos ->
-            productosArray.clear()
-            productosArray.addAll(listaProductos)
+            productos.clear()
+            productos.addAll(listaProductos)
             productosAdapter.notifyDataSetChanged()
         }
 
         productosAdapter.setOnItemLongClickListener(object : RecyclerAdapterProductos.OnItemLongClickListener {
             override fun onItemLongClick(position: Int) {
-                val productoSeleccionado = productosArray[position]
-                Log.d("setOnItemLongClickListener",productoSeleccionado.id)
+                // Actualizar la posición pulsada
+                posicionPulsada = position
+                val productoSeleccionado = productos[posicionPulsada]
 
                 // Si el producto está seleccionado, deselecciónalo
                 if (productoSeleccionado.selected) {
@@ -70,11 +71,6 @@ class ProductosActivity : AppCompatActivity() {
                     productosAdapter.deseleccionarTodos()
                     productoSeleccionado.selected = true
                 }
-                // Notificar al adaptador sobre los cambios
-                productosAdapter.notifyDataSetChanged()
-
-                // Actualizar la posición pulsada
-                posicionPulsada = position
 
                 // Iniciar el modo de acción si es necesario
                 if (productoSeleccionado.selected && mActionMode == null) {
@@ -100,9 +96,9 @@ class ProductosActivity : AppCompatActivity() {
             if (!idProductoNuevo.isNullOrEmpty()) {
                 // Obtener el nuevo producto utilizando el ID y agregarlo a la lista
                 Firebase().obtenerProductoPorId(idProductoNuevo) { nuevoProducto ->
-                    if (nuevoProducto != null && !productosArray.contains(nuevoProducto)) {
-                        productosArray.add(nuevoProducto)
-                        productosAdapter.notifyItemInserted(productosArray.size)
+                    if (nuevoProducto != null && !productos.contains(nuevoProducto)) {
+                        productos.add(nuevoProducto)
+                        productosAdapter.notifyItemInserted(productos.size)
                     }
                 }
             }
@@ -150,7 +146,7 @@ class ProductosActivity : AppCompatActivity() {
 
                         Firebase().borrarProducto(idProducto, urlImagen) {
                             Utils.Toast(this@ProductosActivity, getString(R.string.producto_eliminado))
-                            productosArray.removeAt(posicionPulsada)
+                            productos.removeAt(posicionPulsada)
                             productosAdapter.notifyItemRemoved(posicionPulsada)
                         }
                     }

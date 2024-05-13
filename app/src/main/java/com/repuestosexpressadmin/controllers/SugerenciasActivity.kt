@@ -24,16 +24,14 @@ class SugerenciasActivity : AppCompatActivity() {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_sugerencias)
 
-        val actionBar = supportActionBar
-        if (actionBar != null) {
-            actionBar.title = getString(R.string.sugerencias)
-            actionBar.setBackgroundDrawable(ContextCompat.getDrawable(this, R.color.green))
+        supportActionBar?.apply {
+            title = getString(R.string.sugerencias)
+            setBackgroundDrawable(ContextCompat.getDrawable(this@SugerenciasActivity, R.color.green))
         }
 
         productos = ArrayList()// Inicializa la lista de familias
-        recyclerView = findViewById(R.id.recyclerViewSugerencias)// Inicializa el RecyclerView y el Adapter
-
-        recyclerView.layoutManager = LinearLayoutManager(this) // Agrega un LinearLayoutManager
+        recyclerView = findViewById(R.id.recyclerViewSugerencias)
+        recyclerView.layoutManager = LinearLayoutManager(this)
         productosAdapter = RecyclerAdapterProductos(productos)
         recyclerView.adapter = productosAdapter
 
@@ -47,10 +45,19 @@ class SugerenciasActivity : AppCompatActivity() {
 
         productosAdapter.setOnItemClickListener(object :RecyclerAdapterProductos.OnItemClickListener {
             override fun onItemClick(position: Int) {
-                Utils.Toast(this@SugerenciasActivity, "Posición $position")
-                Log.d("OnItemClickListener", productosAdapter.getProducto(position).id)
-                Log.d("OnItemClickListener", productosAdapter.getProducto(position).nombre)
+                // Actualizar la posición pulsada
                 posicionPulsada = position
+                val productoSeleccionado = productos[posicionPulsada]
+
+                // Si el producto está seleccionado, deselecciónalo
+                if (productoSeleccionado.selected) {
+                    productoSeleccionado.selected = false
+                } else {
+                    // Si el producto no está seleccionado, lo selecciona
+                    productoSeleccionado.selected = true
+                }
+                // Notificar al adaptador sobre los cambios
+                productosAdapter.notifyItemChanged(posicionPulsada)
             }
         })
     }
@@ -64,9 +71,23 @@ class SugerenciasActivity : AppCompatActivity() {
         val itemId = item.itemId
         when (itemId) {
             R.id.btn_EnviarSugerencias -> {
-                Utils.Toast(this, "Hola")
+                // Crear una lista para almacenar los IDs de los productos seleccionados
+                val idsProductosSeleccionados = mutableListOf<String>()
+                // Iterar sobre los productos en el adaptador para encontrar los seleccionados
+                for (producto in productos) {
+                    if (producto.selected) {
+                        // Agregar el ID del producto seleccionado a la lista
+                        idsProductosSeleccionados.add(producto.id)
+                    }
+                }
+                // Llamar al método para actualizar las sugerencias de la clase Firebase
+                Firebase().actualizarSugerencias(idsProductosSeleccionados)
+                Utils.Toast(this, getString(R.string.sugerencias_enviadas))
+                finish()
+                return true // Devolver true para indicar que el evento ha sido manejado
             }
         }
         return super.onOptionsItemSelected(item)
     }
+
 }

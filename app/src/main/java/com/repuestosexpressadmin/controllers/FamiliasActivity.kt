@@ -2,7 +2,6 @@ package com.repuestosexpressadmin.controllers
 
 import android.content.Intent
 import android.os.Bundle
-import android.util.Log
 import android.view.ActionMode
 import android.view.Menu
 import android.view.MenuItem
@@ -28,7 +27,7 @@ class FamiliasActivity : AppCompatActivity() {
 
     private lateinit var familiasAdapter: RecyclerAdapterFamilias
     private lateinit var recyclerView: RecyclerView
-    private lateinit var familiasArray: ArrayList<Familia>
+    private lateinit var familias: ArrayList<Familia>
     private var mActionMode: ActionMode? = null
     private var posicionPulsada: Int = 0
 
@@ -36,24 +35,23 @@ class FamiliasActivity : AppCompatActivity() {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_familias)
 
-        val actionBar = supportActionBar
-        if (actionBar != null) {
-            actionBar.title = getString(R.string.familias)
-            actionBar.setBackgroundDrawable(ContextCompat.getDrawable(this, R.color.green))
+        supportActionBar?.apply {
+            title = getString(R.string.familias)
+            setBackgroundDrawable(ContextCompat.getDrawable(this@FamiliasActivity, R.color.green))
         }
 
-        familiasArray = ArrayList()// Inicializa la lista de familias
+        familias = ArrayList()// Inicializa la lista de familias
         recyclerView = findViewById(R.id.recyclerViewFamilias)// Inicializa el RecyclerView y el Adapter
 
         recyclerView.layoutManager = LinearLayoutManager(this) // Agrega un LinearLayoutManager
-        familiasAdapter = RecyclerAdapterFamilias(familiasArray)
+        familiasAdapter = RecyclerAdapterFamilias(familias)
         recyclerView.adapter = familiasAdapter
 
         // Obtiene las familias de Firebase y las agrega a la lista
         Firebase().obtenerFamilias { listaFamilias ->
-            familiasArray.clear()
+            familias.clear()
             // Agrega cada familia a la lista familias
-            familiasArray.addAll(listaFamilias)
+            familias.addAll(listaFamilias)
             // Notifica al adapter que los datos han cambiado
             familiasAdapter.notifyDataSetChanged()
 
@@ -63,7 +61,7 @@ class FamiliasActivity : AppCompatActivity() {
         familiasAdapter.setOnItemClickListener(object : RecyclerAdapterFamilias.OnItemClickListener {
             override fun onItemClick(position: Int) {
                 // Obtener el elemento seleccionado del array
-                val familiaSeleccionada = familiasArray.get(position)
+                val familiaSeleccionada = familias.get(position)
                 val intent = Intent(this@FamiliasActivity, ProductosActivity::class.java).apply {
                     putExtra("Idfamilia", familiaSeleccionada.id)
                     putExtra("Nombre", familiaSeleccionada.nombre)
@@ -74,7 +72,9 @@ class FamiliasActivity : AppCompatActivity() {
 
         familiasAdapter.setOnItemLongClickListener(object : RecyclerAdapterFamilias.OnItemLongClickListener{
             override fun onItemLongClick(position: Int) {
-                val familiaSeleccionada = familiasArray[position]
+                // Actualizar la posición pulsada
+                posicionPulsada = position
+                val familiaSeleccionada = familias[posicionPulsada]
 
                 // Si el producto está seleccionado, deselecciónalo
                 if(familiaSeleccionada.selected){
@@ -84,11 +84,6 @@ class FamiliasActivity : AppCompatActivity() {
                     familiasAdapter.deseleccionarTodos()
                     familiaSeleccionada.selected = true
                 }
-                // Notificar al adaptador sobre los cambios
-                familiasAdapter.notifyDataSetChanged()
-
-                // Actualizar la posición pulsada
-                posicionPulsada = position
 
                 // Iniciar el modo de acción si es necesario
                 if (familiaSeleccionada.selected && mActionMode == null) {
@@ -112,9 +107,9 @@ class FamiliasActivity : AppCompatActivity() {
             if (!idFamiliaNueva.isNullOrEmpty()) {
                 // Obtener la nueva familia utilizando el ID y agregarla a la lista
                 Firebase().obtenerFamiliaPorId(idFamiliaNueva) { nuevaFamilia ->
-                    if (nuevaFamilia != null && !familiasArray.contains(nuevaFamilia)) {
-                        familiasArray.add(nuevaFamilia)
-                        familiasAdapter.notifyItemInserted(familiasArray.size)
+                    if (nuevaFamilia != null && !familias.contains(nuevaFamilia)) {
+                        familias.add(nuevaFamilia)
+                        familiasAdapter.notifyItemInserted(familias.size)
                     }
                 }
             }
@@ -159,7 +154,7 @@ class FamiliasActivity : AppCompatActivity() {
 
                         Firebase().borrarFamiliaYProductos(idFamilia) {
                             Utils.Toast(this@FamiliasActivity, getString(R.string.familia_eliminada))
-                            familiasArray.removeAt(posicionPulsada)
+                            familias.removeAt(posicionPulsada)
                             familiasAdapter.notifyItemRemoved(posicionPulsada)
                         }
                     }
