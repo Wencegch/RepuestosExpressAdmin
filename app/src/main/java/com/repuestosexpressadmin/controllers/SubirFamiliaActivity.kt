@@ -45,6 +45,11 @@ class SubirFamiliaActivity : AppCompatActivity(), Firebase.OnSubirFamiliaListene
 
         firebase = Firebase()
 
+        supportActionBar?.apply {
+            title = getString(R.string.nueva_familia)
+            setBackgroundDrawable(ContextCompat.getDrawable(this@SubirFamiliaActivity, R.color.green))
+        }
+
         btnSubirImagenFamilia.setOnClickListener {
             pedirPermisos()
         }

@@ -63,6 +63,11 @@ class SubirProductoActivity : AppCompatActivity(), Firebase.OnSubirProductoListe
 
         firebase = Firebase()
 
+        supportActionBar?.apply {
+            title = getString(R.string.nuevo_producto)
+            setBackgroundDrawable(ContextCompat.getDrawable(this@SubirProductoActivity, R.color.green))
+        }
+
         btnSubirImagen.setOnClickListener {
             pedirPermisos()
         }

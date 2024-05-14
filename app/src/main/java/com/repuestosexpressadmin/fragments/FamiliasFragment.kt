@@ -1,13 +1,19 @@
-package com.repuestosexpressadmin.controllers
+package com.repuestosexpressadmin.fragments
 
+import android.app.Activity
 import android.content.Intent
 import android.os.Bundle
 import android.view.ActionMode
+import android.view.LayoutInflater
 import android.view.Menu
+import android.view.MenuInflater
 import android.view.MenuItem
+import android.view.View
+import android.view.ViewGroup
 import androidx.activity.result.contract.ActivityResultContracts
 import androidx.appcompat.app.AppCompatActivity
 import androidx.core.content.ContextCompat
+import androidx.fragment.app.Fragment
 import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.RecyclerView
 import com.iamageo.library.BeautifulDialog
@@ -17,13 +23,15 @@ import com.iamageo.library.onPositive
 import com.iamageo.library.position
 import com.iamageo.library.title
 import com.iamageo.library.type
-import com.repuestosexpressadmin.adapters.RecyclerAdapterFamilias
-import com.repuestosexpressadmin.models.Familia
 import com.repuestosexpressadmin.R
+import com.repuestosexpressadmin.adapters.RecyclerAdapterFamilias
+import com.repuestosexpressadmin.controllers.ProductosActivity
+import com.repuestosexpressadmin.controllers.SubirFamiliaActivity
+import com.repuestosexpressadmin.models.Familia
 import com.repuestosexpressadmin.utils.Firebase
 import com.repuestosexpressadmin.utils.Utils
 
-class FamiliasActivity : AppCompatActivity() {
+class FamiliasFragment : Fragment() {
 
     private lateinit var familiasAdapter: RecyclerAdapterFamilias
     private lateinit var recyclerView: RecyclerView
@@ -31,38 +39,35 @@ class FamiliasActivity : AppCompatActivity() {
     private var mActionMode: ActionMode? = null
     private var posicionPulsada: Int = 0
 
-    override fun onCreate(savedInstanceState: Bundle?) {
-        super.onCreate(savedInstanceState)
-        setContentView(R.layout.activity_familias)
+    override fun onCreateView(inflater: LayoutInflater, container: ViewGroup?, savedInstanceState: Bundle?): View? {
+        setHasOptionsMenu(true)
+        return inflater.inflate(R.layout.fragment_familias, container, false)
+    }
 
-        supportActionBar?.apply {
+    override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
+        super.onViewCreated(view, savedInstanceState)
+
+        (requireActivity() as AppCompatActivity).supportActionBar?.apply {
             title = getString(R.string.familias)
-            setBackgroundDrawable(ContextCompat.getDrawable(this@FamiliasActivity, R.color.green))
+            setBackgroundDrawable(ContextCompat.getDrawable(requireContext(), R.color.green))
         }
 
-        familias = ArrayList()// Inicializa la lista de familias
-        recyclerView = findViewById(R.id.recyclerViewFamilias)// Inicializa el RecyclerView y el Adapter
-
-        recyclerView.layoutManager = LinearLayoutManager(this) // Agrega un LinearLayoutManager
+        familias = ArrayList()
+        recyclerView = view.findViewById(R.id.recyclerViewFamilias)
+        recyclerView.layoutManager = LinearLayoutManager(requireContext())
         familiasAdapter = RecyclerAdapterFamilias(familias)
         recyclerView.adapter = familiasAdapter
 
-        // Obtiene las familias de Firebase y las agrega a la lista
         Firebase().obtenerFamilias { listaFamilias ->
             familias.clear()
-            // Agrega cada familia a la lista familias
             familias.addAll(listaFamilias)
-            // Notifica al adapter que los datos han cambiado
             familiasAdapter.notifyDataSetChanged()
-
         }
 
-        // Establecer un Listener para manejar los clics en los elementos del RecyclerView
         familiasAdapter.setOnItemClickListener(object : RecyclerAdapterFamilias.OnItemClickListener {
             override fun onItemClick(position: Int) {
-                // Obtener el elemento seleccionado del array
-                val familiaSeleccionada = familias.get(position)
-                val intent = Intent(this@FamiliasActivity, ProductosActivity::class.java).apply {
+                val familiaSeleccionada = familias[position]
+                val intent = Intent(requireContext(), ProductosActivity::class.java).apply {
                     putExtra("Idfamilia", familiaSeleccionada.id)
                     putExtra("Nombre", familiaSeleccionada.nombre)
                 }
@@ -70,42 +75,36 @@ class FamiliasActivity : AppCompatActivity() {
             }
         })
 
-        familiasAdapter.setOnItemLongClickListener(object : RecyclerAdapterFamilias.OnItemLongClickListener{
+        familiasAdapter.setOnItemLongClickListener(object : RecyclerAdapterFamilias.OnItemLongClickListener {
             override fun onItemLongClick(position: Int) {
-                // Actualizar la posición pulsada
                 posicionPulsada = position
                 val familiaSeleccionada = familias[posicionPulsada]
 
-                // Si el producto está seleccionado, deselecciónalo
-                if(familiaSeleccionada.selected){
+                if (familiaSeleccionada.selected) {
                     familiaSeleccionada.selected = false
-                }else{
-                    // Si el producto no está seleccionado, selecciona este y deselecciona los demás
+                } else {
                     familiasAdapter.deseleccionarTodos()
                     familiaSeleccionada.selected = true
                 }
 
-                // Iniciar el modo de acción si es necesario
                 if (familiaSeleccionada.selected && mActionMode == null) {
-                    mActionMode = startActionMode(mActionCallback)!!
+                    mActionMode = requireActivity().startActionMode(mActionCallback)
                 } else if (!familiaSeleccionada.selected && mActionMode != null) {
-                    mActionMode!!.finish()
+                    mActionMode?.finish()
                 }
             }
         })
     }
 
-    override fun onCreateOptionsMenu(menu: Menu?): Boolean {
-        menuInflater.inflate(R.menu.add_menu, menu)
-        return super.onCreateOptionsMenu(menu)
+    override fun onCreateOptionsMenu(menu: Menu, inflater: MenuInflater) {
+        inflater.inflate(R.menu.add_menu, menu)
     }
 
     private val subirFamiliaLauncher = registerForActivityResult(ActivityResultContracts.StartActivityForResult()) { result ->
-        if (result.resultCode == RESULT_OK) {
+        if (result.resultCode == AppCompatActivity.RESULT_OK) {
             val data: Intent? = result.data
             val idFamiliaNueva = data?.getStringExtra("idFamilia")
             if (!idFamiliaNueva.isNullOrEmpty()) {
-                // Obtener la nueva familia utilizando el ID y agregarla a la lista
                 Firebase().obtenerFamiliaPorId(idFamiliaNueva) { nuevaFamilia ->
                     if (nuevaFamilia != null && !familias.contains(nuevaFamilia)) {
                         familias.add(nuevaFamilia)
@@ -119,7 +118,7 @@ class FamiliasActivity : AppCompatActivity() {
     override fun onOptionsItemSelected(item: MenuItem): Boolean {
         when (item.itemId) {
             R.id.btn_Add -> {
-                val i = Intent(this, SubirFamiliaActivity::class.java)
+                val i = Intent(requireContext(), SubirFamiliaActivity::class.java)
                 subirFamiliaLauncher.launch(i)
                 return true
             }
@@ -143,7 +142,7 @@ class FamiliasActivity : AppCompatActivity() {
             val itemId = menuItem.itemId
             if (itemId == R.id.btn_Borrar) {
 
-                BeautifulDialog.build(this@FamiliasActivity)
+                BeautifulDialog.build(requireContext() as Activity)
                     .title(getString(R.string.borrar_familia), titleColor = R.color.black)
                     .description(getString(R.string.perder_informacion_familia))
                     .type(type = BeautifulDialog.TYPE.ALERT)
@@ -153,7 +152,7 @@ class FamiliasActivity : AppCompatActivity() {
                         val idFamilia = familia.id
 
                         Firebase().borrarFamiliaYProductos(idFamilia) {
-                            Utils.Toast(this@FamiliasActivity, getString(R.string.familia_eliminada))
+                            Utils.Toast(requireContext(), getString(R.string.familia_eliminada))
                             familias.removeAt(posicionPulsada)
                             familiasAdapter.notifyItemRemoved(posicionPulsada)
                         }

@@ -27,6 +27,11 @@ android {
             )
         }
     }
+
+    buildFeatures {
+        viewBinding = true
+    }
+
     compileOptions {
         sourceCompatibility = JavaVersion.VERSION_1_8
         targetCompatibility = JavaVersion.VERSION_1_8
@@ -53,16 +58,16 @@ dependencies {
     // Import CircleImageView for the profile picture and Glide to load the image
     implementation("de.hdodenhof:circleimageview:3.1.0")
     implementation("com.github.bumptech.glide:glide:4.16.0")
-    annotationProcessor ("com.github.bumptech.glide:compiler:4.12.0")
+    annotationProcessor ("com.github.bumptech.glide:compiler:4.14.0")
     //Biblioteca externa Circular Progress Button
     implementation ("com.github.dmytrodanylyk:circular-progress-button:1.2")
 
     // Import the BoM for the Firebase platform
-    implementation(platform("com.google.firebase:firebase-bom:32.3.1"))
+    implementation(platform("com.google.firebase:firebase-bom:33.0.0"))
     // Add the dependency for the Firebase Authentication library
     // When using the BoM, you don't specify versions in Firebase library dependencies
     implementation("com.google.firebase:firebase-auth-ktx")
-    implementation("com.google.firebase:firebase-storage")//Para subir y bajar imágenes de la BD
+    implementation("com.google.firebase:firebase-storage-ktx") //Para subir y bajar imágenes de la BD
     implementation("com.google.firebase:firebase-analytics")
     // Custom dialogs
     implementation("com.github.iamageo:beautiful-dialog:1.0.9")
