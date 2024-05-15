@@ -1,6 +1,5 @@
 package com.repuestosexpressadmin.controllers
 
-import RecyclerAdapterProductos
 import android.content.Intent
 import android.os.Bundle
 import android.util.Log
@@ -20,6 +19,7 @@ import com.iamageo.library.position
 import com.iamageo.library.title
 import com.iamageo.library.type
 import com.repuestosexpressadmin.R
+import com.repuestosexpressadmin.adapters.RecyclerAdapterProductos
 import com.repuestosexpressadmin.models.Producto
 import com.repuestosexpressadmin.utils.Firebase
 import com.repuestosexpressadmin.utils.Utils

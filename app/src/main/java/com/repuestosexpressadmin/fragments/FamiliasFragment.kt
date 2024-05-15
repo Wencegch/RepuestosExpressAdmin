@@ -66,12 +66,18 @@ class FamiliasFragment : Fragment() {
 
         familiasAdapter.setOnItemClickListener(object : RecyclerAdapterFamilias.OnItemClickListener {
             override fun onItemClick(position: Int) {
-                val familiaSeleccionada = familias[position]
-                val intent = Intent(requireContext(), ProductosActivity::class.java).apply {
-                    putExtra("Idfamilia", familiaSeleccionada.id)
-                    putExtra("Nombre", familiaSeleccionada.nombre)
+                // Verificar si hay alguna familia seleccionada
+                val haySeleccionadas = familias.any { it.selected }
+                if (haySeleccionadas) {
+                    mActionMode?.finish()
+                }else{
+                    val familiaSeleccionada = familias[position]
+                    val intent = Intent(requireContext(), ProductosActivity::class.java).apply {
+                        putExtra("Idfamilia", familiaSeleccionada.id)
+                        putExtra("Nombre", familiaSeleccionada.nombre)
+                    }
+                    startActivity(intent)
                 }
-                startActivity(intent)
             }
         })
 

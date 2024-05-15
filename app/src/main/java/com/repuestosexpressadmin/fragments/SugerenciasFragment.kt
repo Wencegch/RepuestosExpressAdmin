@@ -1,3 +1,5 @@
+package com.repuestosexpressadmin.fragments
+
 import android.os.Bundle
 import android.view.LayoutInflater
 import android.view.Menu
@@ -11,6 +13,7 @@ import androidx.fragment.app.Fragment
 import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.RecyclerView
 import com.repuestosexpressadmin.R
+import com.repuestosexpressadmin.adapters.RecyclerAdapterProductos
 import com.repuestosexpressadmin.models.Producto
 import com.repuestosexpressadmin.utils.Firebase
 import com.repuestosexpressadmin.utils.Utils
@@ -28,7 +31,6 @@ class SugerenciasFragment : Fragment() {
             title = getString(R.string.sugerencias)
             setBackgroundDrawable(ContextCompat.getDrawable(requireContext(), R.color.green))
         }
-
 
         productos = ArrayList()
         recyclerView = view.findViewById(R.id.recyclerViewSugerencias)

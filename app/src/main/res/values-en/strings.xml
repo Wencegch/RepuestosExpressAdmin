@@ -31,4 +31,6 @@
     <string name="perder_informacion_familia">All information related to this family will be lost, are you sure?</string>
     <string name="borrar_familia">Delete family?</string>
     <string name="sugerencias_enviadas">Updated suggestions</string>
+    <string name="historial">Record</string>
+    <string name="pendiente">Pending</string>
 </resources>

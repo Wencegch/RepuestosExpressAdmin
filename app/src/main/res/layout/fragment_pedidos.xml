@@ -1,14 +1,53 @@
 <?xml version="1.0" encoding="utf-8"?>
 <FrameLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
     tools:context=".fragments.PedidosFragment">
 
-    <!-- TODO: Update blank fragment layout -->
-    <TextView
+    <androidx.constraintlayout.widget.ConstraintLayout
         android:layout_width="match_parent"
-        android:layout_height="match_parent"
-        android:text="@string/hello_blank_fragment" />
+        android:layout_height="match_parent">
+
+        <com.google.android.material.tabs.TabLayout
+            android:id="@+id/tabLayoutPedidos"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            app:layout_constraintBottom_toBottomOf="parent"
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintHorizontal_bias="0.0"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintTop_toTopOf="parent"
+            app:layout_constraintVertical_bias="0.005"
+            app:tabIndicatorColor="@color/blue"
+            app:tabIndicatorFullWidth="false"
+            app:tabSelectedTextColor="@color/blue"
+            app:tabTextAppearance="@style/TextAppearance.AppCompat.Small">
+
+            <com.google.android.material.tabs.TabItem
+                android:id="@+id/tabItemPending"
+                android:layout_width="match_parent"
+                android:layout_height="match_parent"
+                android:text="@string/pendiente" />
+
+            <com.google.android.material.tabs.TabItem
+                android:id="@+id/tabItemRecords"
+                android:layout_width="match_parent"
+                android:layout_height="match_parent"
+                android:text="@string/historial" />
+
+        </com.google.android.material.tabs.TabLayout>
+
+        <androidx.viewpager2.widget.ViewPager2
+            android:id="@+id/viewPagerPedidos"
+            android:layout_width="409dp"
+            android:layout_height="678dp"
+            app:layout_constraintBottom_toBottomOf="parent"
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintTop_toBottomOf="@+id/tabLayoutPedidos" />
+
+    </androidx.constraintlayout.widget.ConstraintLayout>
 
 </FrameLayout>

@@ -1,3 +1,5 @@
+package com.repuestosexpressadmin.adapters
+
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
@@ -10,16 +12,14 @@ import com.bumptech.glide.Glide
 import com.repuestosexpressadmin.R
 import com.repuestosexpressadmin.models.Producto
 
-class RecyclerAdapterProductos(private var listProductos: ArrayList<Producto>) :
-    RecyclerView.Adapter<RecyclerAdapterProductos.ViewHolder>() {
+class RecyclerAdapterProductos(private var listProductos: ArrayList<Producto>) :RecyclerView.Adapter<RecyclerAdapterProductos.ViewHolder>() {
 
     private lateinit var progressDrawable: CircularProgressDrawable
     private var onItemClickListener: OnItemClickListener? = null
     private var onItemLongClickListener: OnItemLongClickListener? = null
 
     override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): ViewHolder {
-        val view =
-            LayoutInflater.from(parent.context).inflate(R.layout.item_producto, parent, false)
+        val view = LayoutInflater.from(parent.context).inflate(R.layout.item_producto, parent, false)
         return ViewHolder(view)
     }
 

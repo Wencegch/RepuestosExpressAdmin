@@ -9,8 +9,8 @@ import androidx.core.content.ContextCompat
 import androidx.recyclerview.widget.RecyclerView
 import androidx.swiperefreshlayout.widget.CircularProgressDrawable
 import com.bumptech.glide.Glide
-import com.repuestosexpressadmin.models.Familia
 import com.repuestosexpressadmin.R
+import com.repuestosexpressadmin.models.Familia
 
 class RecyclerAdapterFamilias(private var listFamilias: ArrayList<Familia>): RecyclerView.Adapter<RecyclerAdapterFamilias.ViewHolder>() {
 

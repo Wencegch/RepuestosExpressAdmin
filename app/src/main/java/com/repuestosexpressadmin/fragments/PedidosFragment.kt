@@ -1,57 +1,67 @@
 package com.repuestosexpressadmin.fragments
 
 import android.os.Bundle
-import androidx.fragment.app.Fragment
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
+import androidx.fragment.app.Fragment
+import androidx.viewpager2.widget.ViewPager2
+import com.google.android.material.tabs.TabLayout
+import com.google.android.material.tabs.TabLayout.OnTabSelectedListener
 import com.repuestosexpressadmin.R
-
-// TODO: Rename parameter arguments, choose names that match
-// the fragment initialization parameters, e.g. ARG_ITEM_NUMBER
-private const val ARG_PARAM1 = "param1"
-private const val ARG_PARAM2 = "param2"
+import com.repuestosexpressadmin.adapters.ViewPagerAdapter
 
 /**
- * A simple [Fragment] subclass.
- * Use the [PedidosFragment.newInstance] factory method to
- * create an instance of this fragment.
+ * Fragmento que muestra una lista de pedidos organizada en pestañas.
+ * Cada pestaña corresponde a un estado diferente del pedido, como "Pendiente", "En Proceso", "Completado", etc.
+ * Los pedidos se muestran en un ViewPager2, permitiendo al usuario deslizarse entre las pestañas.
  */
 class PedidosFragment : Fragment() {
-    // TODO: Rename and change types of parameters
-    private var param1: String? = null
-    private var param2: String? = null
 
-    override fun onCreate(savedInstanceState: Bundle?) {
-        super.onCreate(savedInstanceState)
-        arguments?.let {
-            param1 = it.getString(ARG_PARAM1)
-            param2 = it.getString(ARG_PARAM2)
-        }
-    }
+    private lateinit var tabLayout: TabLayout
+    private lateinit var viewPager2: ViewPager2
+    private lateinit var viewAdapter: ViewPagerAdapter
 
     override fun onCreateView(inflater: LayoutInflater, container: ViewGroup?, savedInstanceState: Bundle?): View? {
-        // Inflate the layout for this fragment
+        // Inflar el diseño del fragmento
         return inflater.inflate(R.layout.fragment_pedidos, container, false)
     }
 
-    companion object {
-        /**
-         * Use this factory method to create a new instance of
-         * this fragment using the provided parameters.
-         *
-         * @param param1 Parameter 1.
-         * @param param2 Parameter 2.
-         * @return A new instance of fragment PedidosFragment.
-         */
-        // TODO: Rename and change types and number of parameters
-        @JvmStatic
-        fun newInstance(param1: String, param2: String) =
-            PedidosFragment().apply {
-                arguments = Bundle().apply {
-                    putString(ARG_PARAM1, param1)
-                    putString(ARG_PARAM2, param2)
+    override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
+        super.onViewCreated(view, savedInstanceState)
+
+        // Inicializar componentes de la interfaz de usuario
+        tabLayout = view.findViewById(R.id.tabLayoutPedidos)
+        viewPager2 = view.findViewById(R.id.viewPagerPedidos)
+
+        // Configurar el adaptador para el ViewPager2
+        viewAdapter = ViewPagerAdapter(parentFragmentManager, viewLifecycleOwner.lifecycle)
+        viewPager2.adapter = viewAdapter
+
+        // Escuchar los eventos de selección de pestañas en el TabLayout
+        tabLayout.addOnTabSelectedListener(object : OnTabSelectedListener {
+            override fun onTabSelected(selectedTab: TabLayout.Tab?) {
+                if (selectedTab != null) {
+                    // Cambiar la página del ViewPager2 al seleccionar una pestaña
+                    viewPager2.currentItem = selectedTab.position
                 }
             }
+
+            override fun onTabUnselected(tab : TabLayout.Tab?) {
+                // No se realiza ninguna acción cuando se deselecciona una pestaña
+            }
+
+            override fun onTabReselected(tab: TabLayout.Tab?) {
+                // No se realiza ninguna acción cuando se vuelve a seleccionar una pestaña
+            }
+        })
+
+        // Actualizar la selección de pestañas al cambiar de página en el ViewPager2
+        viewPager2.registerOnPageChangeCallback(object : ViewPager2.OnPageChangeCallback() {
+            override fun onPageSelected(position: Int) {
+                super.onPageSelected(position)
+                tabLayout.selectTab(tabLayout.getTabAt(position))
+            }
+        })
     }
 }
