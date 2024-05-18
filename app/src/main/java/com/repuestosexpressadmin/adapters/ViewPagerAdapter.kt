@@ -12,15 +12,19 @@ import com.repuestosexpressadmin.fragments.PedidosPendientesFragment
  * @property fragmentManager El FragmentManager utilizado para gestionar los fragmentos.
  * @property lifecycle El ciclo de vida asociado al adaptador.
  */
-class ViewPagerAdapter(fragmentManager : FragmentManager, lifecycle : Lifecycle) : FragmentStateAdapter(fragmentManager, lifecycle) {
+class ViewPagerAdapter(fragmentManager: FragmentManager, lifecycle: Lifecycle) : FragmentStateAdapter(fragmentManager, lifecycle) {
+
+    // Lista de fragmentos gestionados por el adaptador
+    private val fragmentList = listOf(
+        PedidosPendientesFragment(), // Fragmento de pedidos pendientes
+        PedidosHistorialFragment()   // Fragmento de historial de pedidos
+    )
 
     /**
      * Obtiene el número total de fragmentos en el ViewPager2.
      * @return El número total de fragmentos.
      */
-    override fun getItemCount(): Int {
-        return 2
-    }
+    override fun getItemCount(): Int = fragmentList.size
 
     /**
      * Crea un nuevo fragmento en la posición especificada.
@@ -28,11 +32,7 @@ class ViewPagerAdapter(fragmentManager : FragmentManager, lifecycle : Lifecycle)
      * @return El fragmento creado.
      */
     override fun createFragment(position: Int): Fragment {
-        // Devuelve un fragmento diferente según la posición
-        return if (position == 0) {
-            PedidosPendientesFragment() // Devuelve el fragmento de pedidos pendientes para la posición 0
-        } else {
-            PedidosHistorialFragment() // Devuelve el fragmento de historial de pedidos para otras posiciones
-        }
+        // Devuelve el fragmento correspondiente a la posición
+        return fragmentList[position]
     }
 }
