@@ -33,4 +33,20 @@
     <string name="sugerencias_enviadas">Sugerencias actualizadas</string>
     <string name="historial">Historial</string>
     <string name="pendiente">Pendiente</string>
+    <string name="cancelar_pedido">Cancelar pedido</string>
+    <string name="informacion_eliminar_pedido">¿Estás seguro de que quieres cancelar este pedido?</string>
+    <string name="error_eliminar_pedido">Error al eliminar el pedido</string>
+    <string name="precio_formato2">Precio: %1$.2f€</string>
+    <string name="cantidad_formato">Cantidad: %1$d</string>
+    <string name="detalles_pedido">Detalles del pedido</string>
+    <string name="id" translatable="false">ID: %1$s</string>
+    <string name="pedido_cancelado">PEDIDO CANCELADO</string>
+    <string name="total" translatable="false">Total: %1$.2f€</string>
+    <string name="estado">Estado: %1$s</string>
+    <string name="fecha">Fecha: %1$s</string>
+    <string name="borrar">Borrar</string>
+    <string name="cantidad">"Cantidad: "</string>
+    <string name="finalizar_pedido">Finalizar pedido</string>
+    <string name="pedido_finalizado">Pedido finalizado</string>
+    <string name="informacion_finalizar_pedido">El estado del pedido cambiará a <b>Finalizado</b> y no se podrá modificar. ¿Estás seguro?</string>
 </resources>

@@ -4,15 +4,19 @@ import android.net.Uri
 import android.util.Log
 import com.google.android.gms.tasks.OnFailureListener
 import com.google.android.gms.tasks.OnSuccessListener
+import com.google.firebase.firestore.FieldValue
 import com.google.firebase.firestore.FirebaseFirestore
 import com.google.firebase.storage.FirebaseStorage
 import com.repuestosexpressadmin.models.Familia
+import com.repuestosexpressadmin.models.LineasPedido
+import com.repuestosexpressadmin.models.Pedido
 import com.repuestosexpressadmin.models.Producto
 import java.util.Calendar
 
 class Firebase {
     private var referenceFamilias = FirebaseFirestore.getInstance().collection("Familias")
     private var referenceProductos = FirebaseFirestore.getInstance().collection("Productos")
+    private var referencePedidos = FirebaseFirestore.getInstance().collection("Pedidos")
     private var storage = FirebaseStorage.getInstance()
 
     interface OnSubirProductoListener {
@@ -342,7 +346,6 @@ class Firebase {
     }
 
     //Sugerencias
-
     fun actualizarSugerencias(idsProductosSeleccionados: MutableList<String>) {
         // Cambiamos las sugerencias que había a false
         referenceProductos
@@ -390,6 +393,145 @@ class Firebase {
                     Log.e("Error", "Error al insertar sugerencias: $e")
                 }
         }
+    }
+
+    fun obtenerPedidosPendientes(onComplete: (List<Pedido>) -> Unit) {
+        val listaPedidos = mutableListOf<Pedido>()
+        referencePedidos
+            .whereEqualTo("estado", "Pendiente")
+            .get()
+            .addOnSuccessListener { querySnapshot ->
+                for (document in querySnapshot.documents) {
+                    val idPedido = document.id
+                    val usuario = document.getString("usuario")
+                    val estado = document.getString("estado")
+                    val fecha = document.getDate("fecha")
+
+                    if (usuario != null && estado != null && fecha != null) {
+                        val pedido = Pedido(idPedido, usuario, estado, fecha)
+                        listaPedidos.add(pedido)
+                    }
+                }
+                onComplete(listaPedidos)
+            }
+            .addOnFailureListener { exception ->
+                Log.d("Error", "$exception")
+                onComplete(emptyList()) // Devolver una lista vacía en caso de error
+            }
+    }
+
+    fun obtenerPedidosFinalizados(onComplete: (List<Pedido>) -> Unit) {
+        val listaPedidos = mutableListOf<Pedido>()
+        referencePedidos
+            .whereEqualTo("estado", "Finalizado")
+            .get()
+            .addOnSuccessListener { querySnapshot ->
+                for (document in querySnapshot.documents) {
+                    val idPedido = document.id
+                    val usuario = document.getString("usuario")
+                    val estado = document.getString("estado")
+                    val fecha = document.getDate("fecha")
+
+                    if (usuario != null && estado != null && fecha != null) {
+                        val pedido = Pedido(idPedido, usuario, estado, fecha)
+                        listaPedidos.add(pedido)
+                    }
+                }
+                onComplete(listaPedidos)
+            }
+            .addOnFailureListener { exception ->
+                Log.d("Error", "$exception")
+                onComplete(emptyList()) // Devolver una lista vacía en caso de error
+            }
+    }
+
+    fun borrarPedidoPorId(pedidoId: String, onComplete: (Boolean) -> Unit) {
+        // Primero obtener y eliminar todas las líneas de pedido en la subcolección "lineas"
+        referencePedidos.document(pedidoId).collection("lineas")
+            .get()
+            .addOnSuccessListener { querySnapshot ->
+                val batch = FirebaseFirestore.getInstance().batch()
+                for (document in querySnapshot.documents) {
+                    batch.delete(document.reference)
+                }
+
+                // Una vez que las líneas de pedido están eliminadas, eliminar el documento del pedido
+                batch.commit()
+                    .addOnSuccessListener {
+                        referencePedidos.document(pedidoId).delete()
+                            .addOnSuccessListener {
+                                Log.d("Eliminar Pedido", "Pedido y subcolecciones eliminados con éxito con ID: $pedidoId")
+                                onComplete(true)
+                            }
+                            .addOnFailureListener { exception ->
+                                Log.e("Error", "Error al eliminar el pedido con ID: $pedidoId, excepción: $exception")
+                                onComplete(false)
+                            }
+                    }
+                    .addOnFailureListener { exception ->
+                        Log.e("Error", "Error al eliminar subcolecciones del pedido con ID: $pedidoId, excepción: $exception")
+                        onComplete(false)
+                    }
+            }
+            .addOnFailureListener { exception ->
+                Log.e("Error", "Error al obtener subcolecciones del pedido con ID: $pedidoId, excepción: $exception")
+                onComplete(false)
+            }
+    }
+
+    fun obtenerLineasDePedido(pedidoId: String, onComplete: (List<LineasPedido>) -> Unit) {
+        val lineasPedido = mutableListOf<LineasPedido>()
+
+        referencePedidos.document(pedidoId)
+            .collection("lineas")
+            .get()
+            .addOnSuccessListener { querySnapshot ->
+                for (document in querySnapshot.documents) {
+                    val idProducto = document.getString("idProducto")
+                    val cantidad = document.getLong("cantidad")?.toInt()
+                    val lineaPedido = LineasPedido(idProducto!!, cantidad!!)
+                    lineasPedido.add(lineaPedido)
+                }
+                onComplete(lineasPedido)
+            }
+            .addOnFailureListener { exception ->
+                Log.e("Error", "Error al obtener las líneas del pedido: $exception")
+                onComplete(emptyList()) // Devolver una lista vacía en caso de error
+            }
+    }
+
+    fun actualizarEstadoPedido(id: String, estado: String) {
+        referencePedidos.document(id)
+            .update("estado", estado)
+            .addOnSuccessListener {
+                Log.d("Pedido actualizado", "Sí")
+
+                // Obtener las líneas del pedido
+                referencePedidos.document(id).collection("lineas")
+                    .get()
+                    .addOnSuccessListener { querySnapshot ->
+                        for (document in querySnapshot.documents) {
+                            val idProducto = document.getString("idProducto")
+                            val cantidad = document.getLong("cantidad")?.toInt()
+
+                            // Actualizar las veces que se pidió un producto
+                            referenceProductos.document(idProducto!!)
+                                .update("veces_pedido", FieldValue.increment(cantidad!!.toLong()))
+                                .addOnSuccessListener {
+                                    Log.d("Pedido", "Producto actualizado con éxito para el producto: $idProducto")
+                                }
+                                .addOnFailureListener { exception ->
+                                    Log.e("Error", "Error al actualizar el producto $idProducto: $exception")
+                                }
+                        }
+                    }
+                    .addOnFailureListener { exception ->
+                        Log.e("Error", "Error al obtener las líneas del pedido: $exception")
+                    }
+            }
+            .addOnFailureListener { exception ->
+                Log.e("Error", "$exception")
+            }
     }
 
 }

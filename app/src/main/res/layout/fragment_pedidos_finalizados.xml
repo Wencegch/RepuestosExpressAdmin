@@ -3,10 +3,10 @@
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    tools:context=".fragments.PedidosHistorialFragment">
+    tools:context=".fragments.PedidosFinalizadosFragment">
 
     <androidx.recyclerview.widget.RecyclerView
-        android:id="@+id/recyclerViewPedidosHistorial"
+        android:id="@+id/recyclerViewPedidosFinalizados"
         android:layout_width="match_parent"
         android:layout_height="match_parent" />
 </FrameLayout>

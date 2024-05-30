@@ -130,7 +130,6 @@ class SubirProductoActivity : AppCompatActivity(), Firebase.OnSubirProductoListe
         }
     }
 
-
     private val requestPermissionLauncher =
         registerForActivityResult(ActivityResultContracts.RequestPermission()) { isGranted: Boolean ->
             if (isGranted) {
@@ -172,7 +171,6 @@ class SubirProductoActivity : AppCompatActivity(), Firebase.OnSubirProductoListe
             Log.e("onProductoSubido", "El id del producto es nulo")
         }
     }
-
 
     override fun onImageSubida(idProducto: String?) {
         val returnIntent = Intent().apply {

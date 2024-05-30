@@ -26,7 +26,6 @@ class Producto {
         _idFamilia = idFamilia
     }
 
-
     var id: String
         get() = _id
         set(value) {
@@ -62,6 +61,5 @@ class Producto {
         set(value) {
             _selected = value
         }
-
 }
 

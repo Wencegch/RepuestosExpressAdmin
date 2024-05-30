@@ -33,4 +33,18 @@
     <string name="sugerencias_enviadas">Updated suggestions</string>
     <string name="historial">Record</string>
     <string name="pendiente">Pending</string>
+    <string name="cancelar_pedido">Cancel order</string>
+    <string name="informacion_eliminar_pedido">Are you sure you want to cancel this order?</string>
+    <string name="error_eliminar_pedido">Error deleting the order</string>
+    <string name="precio_formato2">Price: %1$.2f€</string>
+    <string name="cantidad_formato">Quantity:  %1$d</string>
+    <string name="detalles_pedido">Order details</string>
+    <string name="pedido_cancelado">ORDER CANCELLED</string>
+    <string name="estado">Status: %1$s</string>
+    <string name="fecha">Date: %1$s</string>
+    <string name="borrar">Delete</string>
+    <string name="cantidad">"Quantity: "</string>
+    <string name="finalizar_pedido">Finalise order</string>
+    <string name="pedido_finalizado">Order completed</string>
+    <string name="informacion_finalizar_pedido">The status of the order will change to <b>Finished</b> and cannot be changed. Are you sure?</string>
 </resources>

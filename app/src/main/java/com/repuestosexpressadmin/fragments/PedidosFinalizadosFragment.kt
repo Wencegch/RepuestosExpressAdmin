@@ -5,9 +5,6 @@ import android.os.Bundle
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
-import androidx.activity.result.ActivityResultLauncher
-import androidx.activity.result.contract.ActivityResultContracts
-import androidx.appcompat.app.AppCompatActivity
 import androidx.fragment.app.Fragment
 import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.RecyclerView
@@ -17,33 +14,30 @@ import com.repuestosexpressadmin.controllers.DetallePedidoActivity
 import com.repuestosexpressadmin.models.Pedido
 import com.repuestosexpressadmin.utils.Firebase
 
-class PedidosPendientesFragment : Fragment() {
+class PedidosFinalizadosFragment : Fragment() {
     private lateinit var recyclerView: RecyclerView
     private lateinit var pedidosAdapter: RecyclerAdapterPedidos
     private lateinit var pedidos: ArrayList<Pedido>
-    private lateinit var detallePedidoLauncher: ActivityResultLauncher<Intent>
 
     override fun onCreateView(inflater: LayoutInflater, container: ViewGroup?, savedInstanceState: Bundle?): View? {
         // Inflate the layout for this fragment
-        return inflater.inflate(R.layout.fragment_pedidos_pendientes, container, false)
+        return inflater.inflate(R.layout.fragment_pedidos_finalizados, container, false)
     }
 
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
 
         pedidos = ArrayList()
-        recyclerView = view.findViewById(R.id.recyclerViewPedidosPendientes)
+        recyclerView = view.findViewById(R.id.recyclerViewPedidosFinalizados)
         recyclerView.layoutManager = LinearLayoutManager(requireContext())
         pedidosAdapter = RecyclerAdapterPedidos(requireContext(), pedidos)
         recyclerView.adapter = pedidosAdapter
 
-        detallePedidoLauncher = registerForActivityResult(ActivityResultContracts.StartActivityForResult()) { result ->
-            if (result.resultCode == AppCompatActivity.RESULT_OK) {
-                actualizarListaPedidos()
-            }
+        Firebase().obtenerPedidosFinalizados(){ listaPedidos ->
+            pedidos.clear()
+            pedidos.addAll(listaPedidos)
+            pedidosAdapter.notifyDataSetChanged()
         }
-
-        actualizarListaPedidos()
 
         pedidosAdapter.setOnItemClickListener(object : RecyclerAdapterPedidos.OnItemClickListener {
             override fun onItemClick(position: Int) {
@@ -51,16 +45,8 @@ class PedidosPendientesFragment : Fragment() {
                 val intent = Intent(requireContext(), DetallePedidoActivity::class.java).apply {
                     putExtra("pedido", pedidoSeleccionado)
                 }
-                detallePedidoLauncher.launch(intent)
+                startActivity(intent)
             }
         })
-    }
-
-    private fun actualizarListaPedidos() {
-        Firebase().obtenerPedidosPendientes() { listaPedidos ->
-            pedidos.clear()
-            pedidos.addAll(listaPedidos)
-            pedidosAdapter.notifyDataSetChanged()
-        }
     }
 }

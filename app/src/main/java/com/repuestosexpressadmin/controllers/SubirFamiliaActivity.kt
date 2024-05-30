@@ -91,7 +91,6 @@ class SubirFamiliaActivity : AppCompatActivity(), Firebase.OnSubirFamiliaListene
         }
     }
 
-
     private val requestPermissionLauncher =
         registerForActivityResult(ActivityResultContracts.RequestPermission()) { isGranted: Boolean ->
             if (isGranted) {
