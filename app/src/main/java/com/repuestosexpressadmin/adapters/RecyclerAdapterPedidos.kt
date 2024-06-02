@@ -53,36 +53,7 @@ class RecyclerAdapterPedidos(private val context: Context, private var listPedid
         }
 
         holder.itemView.setOnLongClickListener {
-            val popup = PopupMenu(holder.itemView.context, holder.itemView)
-            popup.inflate(R.menu.popup_menu)
-
-            popup.setOnMenuItemClickListener { item ->
-                when (item.itemId) {
-                    R.id.btn_Delete -> {
-                        BeautifulDialog.build(context as Activity)
-                            .title(context.getString(R.string.cancelar_pedido), titleColor = R.color.black)
-                            .description(context.getString(R.string.informacion_eliminar_pedido), color = R.color.black)
-                            .type(type = BeautifulDialog.TYPE.ALERT)
-                            .position(BeautifulDialog.POSITIONS.CENTER)
-                            .onPositive(text = context.getString(android.R.string.ok), shouldIDismissOnClick = true) {
-                                val pedido = listPedidos[position]
-                                Firebase().borrarPedidoPorId(pedido.id){ success ->
-                                    if (success){
-                                        listPedidos.removeAt(position)
-                                        notifyItemRemoved(position)
-                                        notifyItemRangeChanged(position, listPedidos.size)
-                                    }else{
-                                        Utils.Toast(context, context.getString(R.string.error_eliminar_pedido))
-                                    }
-                                }
-                            }
-                            .onNegative(text = context.getString(android.R.string.cancel)) {}
-                        true
-                    }
-                    else -> false
-                }
-            }
-            popup.show()
+            onItemLongClickListener?.onItemLongClick(position)
             true
         }
     }
@@ -142,4 +113,8 @@ class RecyclerAdapterPedidos(private val context: Context, private var listPedid
         onItemLongClickListener = listener
     }
 
+    fun updatePedidos(newPedidos: ArrayList<Pedido>) {
+        this.listPedidos = newPedidos
+        notifyDataSetChanged()
+    }
 }

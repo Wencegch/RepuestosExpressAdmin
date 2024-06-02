@@ -235,7 +235,6 @@ class Firebase {
         referenceProductos.whereEqualTo("idFamilia", idFamilia).get()
             .addOnSuccessListener { querySnapshot ->
                 for (document in querySnapshot.documents) {
-                    Log.d("Id Firebase", document.id)
                     val idFirebase = document.id
                     val nombre = document.getString("nombre")
                     val precio = document.getDouble("precio")
@@ -500,7 +499,7 @@ class Firebase {
             }
     }
 
-    fun actualizarEstadoPedido(id: String, estado: String) {
+    fun actualizarEstadoPedido(id: String, estado: String, onComplete: (Boolean) -> Unit) {
         referencePedidos.document(id)
             .update("estado", estado)
             .addOnSuccessListener {
@@ -524,13 +523,16 @@ class Firebase {
                                     Log.e("Error", "Error al actualizar el producto $idProducto: $exception")
                                 }
                         }
+                        onComplete(true)
                     }
                     .addOnFailureListener { exception ->
                         Log.e("Error", "Error al obtener las líneas del pedido: $exception")
+                        onComplete(false)
                     }
             }
             .addOnFailureListener { exception ->
                 Log.e("Error", "$exception")
+                onComplete(false)
             }
     }
 

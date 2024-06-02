@@ -49,4 +49,8 @@
     <string name="finalizar_pedido">Finalizar pedido</string>
     <string name="pedido_finalizado">Pedido finalizado</string>
     <string name="informacion_finalizar_pedido">El estado del pedido cambiará a <b>Finalizado</b> y no se podrá modificar. ¿Estás seguro?</string>
+    <string name="error_finalizar_pedido">Hubo un error al intentar finalizar el pedido</string>
+    <string name="filtro_por_id">Buscar por Id</string>
+    <string name="filtro_familia">Buscar familia</string>
+    <string name="filtro_producto">Buscar producto</string>
 </resources>

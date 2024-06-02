@@ -2,13 +2,14 @@ package com.repuestosexpressadmin.controllers
 
 import android.content.Intent
 import android.os.Bundle
-import android.util.Log
 import android.view.ActionMode
 import android.view.Menu
 import android.view.MenuItem
+import android.widget.EditText
 import androidx.activity.result.contract.ActivityResultContracts
 import androidx.appcompat.app.AppCompatActivity
 import androidx.core.content.ContextCompat
+import androidx.core.widget.addTextChangedListener
 import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.RecyclerView
 import com.iamageo.library.BeautifulDialog
@@ -29,50 +30,60 @@ class ProductosActivity : AppCompatActivity() {
     private lateinit var productosAdapter: RecyclerAdapterProductos
     private lateinit var recyclerView: RecyclerView
     private lateinit var productos: ArrayList<Producto>
+    private lateinit var productosFiltrados: ArrayList<Producto>
     private lateinit var idFamilia: String
     private var mActionMode: ActionMode? = null
-    private var posicionPulsada: Int = 0
+    private var posicionPulsada: Int = -1
+    private lateinit var txtFiltroProducto: EditText
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_productos)
 
         idFamilia = intent.getStringExtra("Idfamilia").toString()
-        val nombreFamilia = intent.getStringExtra("Nombre")
 
         supportActionBar?.apply {
-            title = nombreFamilia
+            title = intent.getStringExtra("Nombre")
             setBackgroundDrawable(ContextCompat.getDrawable(this@ProductosActivity, R.color.green))
         }
 
-        productos = ArrayList()
         recyclerView = findViewById(R.id.recyclerViewProductos)
+        txtFiltroProducto = findViewById(R.id.txtFiltroProductos)
+
+        productos = ArrayList()
+        productosFiltrados = ArrayList()
+
         recyclerView.layoutManager = LinearLayoutManager(this)
-        productosAdapter = RecyclerAdapterProductos(productos)
+        productosAdapter = RecyclerAdapterProductos(productosFiltrados)
         recyclerView.adapter = productosAdapter
+
+        txtFiltroProducto.addTextChangedListener { userFilter ->
+            productosFiltrados = productos.filter { producto ->
+                producto.nombre.lowercase().contains(userFilter.toString().lowercase())
+            }.toCollection(ArrayList())
+            productosAdapter.updateProductos(productosFiltrados)
+        }
 
         Firebase().obtenerProductosFamilia(idFamilia) { listaProductos ->
             productos.clear()
             productos.addAll(listaProductos)
+            productosFiltrados.clear()
+            productosFiltrados.addAll(listaProductos)
             productosAdapter.notifyDataSetChanged()
         }
 
         productosAdapter.setOnItemLongClickListener(object : RecyclerAdapterProductos.OnItemLongClickListener {
             override fun onItemLongClick(position: Int) {
-                // Actualizar la posición pulsada
                 posicionPulsada = position
-                val productoSeleccionado = productos[posicionPulsada]
+                val productoSeleccionado = productosFiltrados[posicionPulsada]
 
-                // Si el producto está seleccionado, deselecciónalo
                 if (productoSeleccionado.selected) {
                     productoSeleccionado.selected = false
                 } else {
-                    // Si el producto no está seleccionado, selecciona este y deselecciona los demás
                     productosAdapter.deseleccionarTodos()
                     productoSeleccionado.selected = true
                 }
 
-                // Iniciar el modo de acción si es necesario
                 if (productoSeleccionado.selected && mActionMode == null) {
                     mActionMode = startActionMode(mActionCallback)!!
                 } else if (!productoSeleccionado.selected && mActionMode != null) {
@@ -80,10 +91,8 @@ class ProductosActivity : AppCompatActivity() {
                 }
             }
         })
-
     }
 
-    //Menu simple añadir
     override fun onCreateOptionsMenu(menu: Menu?): Boolean {
         menuInflater.inflate(R.menu.add_menu, menu)
         return super.onCreateOptionsMenu(menu)
@@ -94,11 +103,11 @@ class ProductosActivity : AppCompatActivity() {
             val data: Intent? = result.data
             val idProductoNuevo = data?.getStringExtra("idProducto")
             if (!idProductoNuevo.isNullOrEmpty()) {
-                // Obtener el nuevo producto utilizando el ID y agregarlo a la lista
                 Firebase().obtenerProductoPorId(idProductoNuevo) { nuevoProducto ->
                     if (nuevoProducto != null && !productos.contains(nuevoProducto)) {
                         productos.add(nuevoProducto)
-                        productosAdapter.notifyItemInserted(productos.size)
+                        productosFiltrados.add(nuevoProducto)
+                        productosAdapter.notifyItemInserted(productosFiltrados.size)
                     }
                 }
             }
@@ -111,7 +120,6 @@ class ProductosActivity : AppCompatActivity() {
             R.id.btn_Add -> {
                 val i = Intent(this, SubirProductoActivity::class.java)
                 i.putExtra("idFamilia", idFamilia)
-                Log.d("Id Familia", idFamilia)
                 subirProductoLauncher.launch(i)
             }
         }
@@ -133,21 +141,21 @@ class ProductosActivity : AppCompatActivity() {
         override fun onActionItemClicked(actionMode: ActionMode, menuItem: MenuItem): Boolean {
             val itemId = menuItem.itemId
             if (itemId == R.id.btn_Borrar) {
-
                 BeautifulDialog.build(this@ProductosActivity)
                     .title(getString(R.string.borrar_producto), titleColor = R.color.black)
                     .description(getString(R.string.perder_informacion_producto))
                     .type(type = BeautifulDialog.TYPE.ALERT)
                     .position(BeautifulDialog.POSITIONS.CENTER)
                     .onPositive(text = getString(R.string.aceptar), shouldIDismissOnClick = true) {
-                        val producto: Producto = productosAdapter.getProducto(posicionPulsada)
+                        val producto: Producto = productosFiltrados[posicionPulsada]
                         val idProducto = producto.id
                         val urlImagen = producto.imgUrl
 
                         Firebase().borrarProducto(idProducto, urlImagen) {
                             Utils.Toast(this@ProductosActivity, getString(R.string.producto_eliminado))
-                            productos.removeAt(posicionPulsada)
-                            productosAdapter.notifyItemRemoved(posicionPulsada)
+                            productos.remove(producto)
+                            productosFiltrados.remove(producto)
+                            productosAdapter.notifyDataSetChanged()
                         }
                     }
                     .onNegative(text = getString(R.string.cancelar)) {}

@@ -47,4 +47,8 @@
     <string name="finalizar_pedido">Finalise order</string>
     <string name="pedido_finalizado">Order completed</string>
     <string name="informacion_finalizar_pedido">The status of the order will change to <b>Finished</b> and cannot be changed. Are you sure?</string>
+    <string name="error_finalizar_pedido">There was an error trying to finalise the order</string>
+    <string name="filtro_por_id">Search by Id</string>
+    <string name="filtro_familia">"Search family "</string>
+    <string name="filtro_producto">Search product</string>
 </resources>

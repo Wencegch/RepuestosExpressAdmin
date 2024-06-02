@@ -15,9 +15,8 @@ import com.repuestosexpressadmin.models.Familia
 class RecyclerAdapterFamilias(private var listFamilias: ArrayList<Familia>): RecyclerView.Adapter<RecyclerAdapterFamilias.ViewHolder>() {
 
     private lateinit var progressDrawable: CircularProgressDrawable
-    private lateinit var onItemClickListener: OnItemClickListener
-    private lateinit var onItemLongClickListener: RecyclerAdapterProductos.OnItemLongClickListener
-
+    private var onItemClickListener: OnItemClickListener? = null
+    private var onItemLongClickListener: RecyclerAdapterProductos.OnItemLongClickListener? = null
 
     override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): ViewHolder {
         val view = LayoutInflater.from(parent.context).inflate(R.layout.item_familia, parent, false)
@@ -50,12 +49,12 @@ class RecyclerAdapterFamilias(private var listFamilias: ArrayList<Familia>): Rec
             .into(holder.imagenFamilia)
 
         holder.itemView.setOnClickListener{
-            onItemClickListener.onItemClick(position)
+            onItemClickListener?.onItemClick(position)
         }
 
         // Agregar OnLongClickListener para borrar la familia
         holder.itemView.setOnLongClickListener {
-            onItemLongClickListener.onItemLongClick(position)
+            onItemLongClickListener?.onItemLongClick(position)
             true
         }
     }
@@ -66,7 +65,7 @@ class RecyclerAdapterFamilias(private var listFamilias: ArrayList<Familia>): Rec
 
     class ViewHolder(itemView: View) : RecyclerView.ViewHolder(itemView) {
         val nombre: TextView = itemView.findViewById(R.id.txtNombreFamilia)
-        val info : TextView = itemView.findViewById(R.id.txtInformacion)
+        val info: TextView = itemView.findViewById(R.id.txtInformacion)
         val imagenFamilia: ImageView = itemView.findViewById(R.id.imageViewFamilia)
 
     }
@@ -119,6 +118,11 @@ class RecyclerAdapterFamilias(private var listFamilias: ArrayList<Familia>): Rec
         for (familia in listFamilias) {
             familia.selected = false
         }
+        notifyDataSetChanged()
+    }
+
+    fun updateFamilias(newFamilias: ArrayList<Familia>) {
+        this.listFamilias = newFamilias
         notifyDataSetChanged()
     }
 }

@@ -1,6 +1,7 @@
 package com.repuestosexpressadmin.controllers
 
 import android.os.Bundle
+import android.util.Log
 import android.widget.Button
 import android.widget.TextView
 import androidx.appcompat.app.AppCompatActivity
@@ -105,9 +106,16 @@ class DetallePedidoActivity : AppCompatActivity() {
                 .type(type = BeautifulDialog.TYPE.ALERT)
                 .position(BeautifulDialog.POSITIONS.CENTER)
                 .onPositive(text = getString(android.R.string.ok), shouldIDismissOnClick = true) {
-                    Firebase().actualizarEstadoPedido(pedido!!.id, "Finalizado")
-                    Utils.Toast(this, getString(R.string.pedido_finalizado))
-                    finish()
+                    Firebase().actualizarEstadoPedido(pedido!!.id, "Finalizado"){ success ->
+                        if (success) {
+                            Log.d("Pedido", "Pedido Finalizado")
+                            Utils.Toast(this, getString(R.string.pedido_finalizado))
+                            setResult(RESULT_OK)
+                            finish()
+                        } else {
+                            Utils.Toast(this, getString(R.string.error_finalizar_pedido))
+                        }
+                    }
                 }
                 .onNegative(text = getString(android.R.string.cancel)) {}
 

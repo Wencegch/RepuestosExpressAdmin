@@ -3,6 +3,7 @@ package com.repuestosexpressadmin.fragments
 import android.app.Activity
 import android.content.Intent
 import android.os.Bundle
+import android.util.Log
 import android.view.ActionMode
 import android.view.LayoutInflater
 import android.view.Menu
@@ -10,9 +11,11 @@ import android.view.MenuInflater
 import android.view.MenuItem
 import android.view.View
 import android.view.ViewGroup
+import android.widget.EditText
 import androidx.activity.result.contract.ActivityResultContracts
 import androidx.appcompat.app.AppCompatActivity
 import androidx.core.content.ContextCompat
+import androidx.core.widget.addTextChangedListener
 import androidx.fragment.app.Fragment
 import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.RecyclerView
@@ -36,8 +39,10 @@ class FamiliasFragment : Fragment() {
     private lateinit var familiasAdapter: RecyclerAdapterFamilias
     private lateinit var recyclerView: RecyclerView
     private lateinit var familias: ArrayList<Familia>
+    private lateinit var familiasFiltradas: ArrayList<Familia>
     private var mActionMode: ActionMode? = null
     private var posicionPulsada: Int = 0
+    private lateinit var txtFiltroFamilia: EditText
 
     override fun onCreateView(inflater: LayoutInflater, container: ViewGroup?, savedInstanceState: Bundle?): View? {
         setHasOptionsMenu(true)
@@ -52,15 +57,27 @@ class FamiliasFragment : Fragment() {
             setBackgroundDrawable(ContextCompat.getDrawable(requireContext(), R.color.green))
         }
 
-        familias = ArrayList()
+        txtFiltroFamilia = view.findViewById(R.id.txtFiltroFamilia)
         recyclerView = view.findViewById(R.id.recyclerViewFamilias)
+
+        familias = ArrayList()
+        familiasFiltradas = ArrayList()
         recyclerView.layoutManager = LinearLayoutManager(requireContext())
         familiasAdapter = RecyclerAdapterFamilias(familias)
         recyclerView.adapter = familiasAdapter
 
+        txtFiltroFamilia.addTextChangedListener { userFilter ->
+            familiasFiltradas = familias.filter { familia ->
+                familia.nombre.lowercase().contains(userFilter.toString().lowercase())
+            }.toCollection(ArrayList())
+            familiasAdapter.updateFamilias(familiasFiltradas)
+        }
+
         Firebase().obtenerFamilias { listaFamilias ->
             familias.clear()
             familias.addAll(listaFamilias)
+            familiasFiltradas.clear()
+            familiasFiltradas.addAll(listaFamilias)
             familiasAdapter.notifyDataSetChanged()
         }
 
@@ -84,7 +101,7 @@ class FamiliasFragment : Fragment() {
         familiasAdapter.setOnItemLongClickListener(object : RecyclerAdapterFamilias.OnItemLongClickListener {
             override fun onItemLongClick(position: Int) {
                 posicionPulsada = position
-                val familiaSeleccionada = familias[posicionPulsada]
+                val familiaSeleccionada = familiasFiltradas[posicionPulsada]
 
                 if (familiaSeleccionada.selected) {
                     familiaSeleccionada.selected = false
@@ -160,7 +177,7 @@ class FamiliasFragment : Fragment() {
                         Firebase().borrarFamiliaYProductos(idFamilia) {
                             Utils.Toast(requireContext(), getString(R.string.familia_eliminada))
                             familias.removeAt(posicionPulsada)
-                            familiasAdapter.notifyItemRemoved(posicionPulsada)
+                            familiasAdapter.notifyDataSetChanged()
                         }
                     }
                     .onNegative(text = getString(R.string.cancelar)) {}
