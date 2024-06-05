@@ -32,18 +32,20 @@ class Firebase {
     //FamiliasActivity
     fun obtenerFamilias(onComplete: (List<Familia>) -> Unit) {
         val listaFamilias = mutableListOf<Familia>()
-        referenceFamilias.get().addOnSuccessListener { querySnapshot ->
-            for (document in querySnapshot.documents) {
-                val id = document.id
-                val nombre = document.getString("nombre")
-                val info = document.getString("info")
-                val imgUrl = document.getString("imgUrl")
-                if (nombre != null && info != null && imgUrl != null) {
-                    val familia = Familia(id, nombre, info, imgUrl)
-                    listaFamilias.add(familia)
+        referenceFamilias.whereEqualTo("eliminado", false)
+            .get()
+            .addOnSuccessListener { querySnapshot ->
+                for (document in querySnapshot.documents) {
+                    val id = document.id
+                    val nombre = document.getString("nombre")
+                    val info = document.getString("info")
+                    val imgUrl = document.getString("imgUrl")
+                    if (nombre != null && info != null && imgUrl != null) {
+                        val familia = Familia(id, nombre, info, imgUrl)
+                        listaFamilias.add(familia)
+                    }
                 }
-            }
-            onComplete(listaFamilias)
+                onComplete(listaFamilias)
         }.addOnFailureListener { exception ->
             Log.d("Error", "$exception")
             onComplete(emptyList()) // Devolver una lista vacía en caso de error
@@ -77,6 +79,7 @@ class Firebase {
         datosFamilia["nombre"] = familia.nombre
         datosFamilia["info"] = familia.info
         datosFamilia["imgUrl"] = ""
+        datosFamilia["eliminado"] = false
 
         referenceFamilias.add(datosFamilia).addOnSuccessListener { documentReference->
             val id: String = documentReference.id
@@ -113,12 +116,12 @@ class Firebase {
         } else {
             referenceFamilias.document(id)
                 .update("imgUrl", "no tiene")
-                .addOnSuccessListener(OnSuccessListener<Void?> {
+                .addOnSuccessListener{
                     listenerSubirFamiliaActivity.onImageSubida(id)
-                })
-                .addOnFailureListener(OnFailureListener { exception ->
+                }
+                .addOnFailureListener { exception ->
                     Log.e("Error al subir la imagen", "$exception")
-                })
+                }
         }
     }
 
@@ -127,48 +130,67 @@ class Firebase {
      * @param idFamilia El ID de la familia que se va a eliminar.
      */
     fun borrarFamiliaYProductos(idFamilia: String, onComplete: () -> Unit) {
-        // Eliminar la familia de la colección "Familias" en Firestore y su imagen asociada desde Firebase Storage
+        val actualizacionesFamilia = mapOf(
+            "eliminado" to true,
+            "imgUrl" to "borrada"
+        )
+
         referenceFamilias.document(idFamilia)
-            .delete()
+            .update(actualizacionesFamilia)
             .addOnSuccessListener {
-                // Eliminación exitosa de la familia en Firestore
-                Log.d("Familia borrada", "Sí")
+                // Éxito al actualizar la familia
+                Log.d("Familia actualizada", "Campo 'eliminado' actualizado a true")
                 // Obtener la referencia del almacenamiento para la imagen asociada a la familia
-                val storageRef = storage.reference.child("familias/$idFamilia")
+                val storageRefFamilia = storage.reference.child("familias/$idFamilia")
                 // Eliminar la imagen asociada a la familia desde Firebase Storage
-                storageRef.delete()
-                    .addOnFailureListener { exception ->
-                        // Manejar error al eliminar la imagen asociada a la familia
-                        Log.e("Error al eliminar la imagen asociada a la familia", "$exception")
+                storageRefFamilia.delete()
+                    .addOnSuccessListener {
+                        // Éxito al borrar la imagen del almacenamiento
+                        Log.d("Imagen de familia borrada", "Sí")
+                    }.addOnFailureListener { exception ->
+                        // Manejar error al borrar la imagen del almacenamiento
+                        Log.e("Error", "Error al eliminar la imagen asociada a la familia: $exception")
                     }
 
-                // Eliminar los productos asociados a la familia de la colección "Productos" en Firestore y sus imágenes asociadas desde Firebase Storage
+                // Obtener todos los productos asociados a la familia
                 referenceProductos
                     .whereEqualTo("idFamilia", idFamilia)
                     .get()
                     .addOnSuccessListener { querySnapshot ->
                         for (document in querySnapshot.documents) {
-                            // Eliminar cada producto asociado a la familia en Firestore
                             val productId = document.id
-                            document.reference.delete()
+                            val imgUrl = document.getString("imgUrl")
+
+                            // Crear el mapa con los campos a actualizar para cada producto
+                            val actualizacionesProducto = mapOf(
+                                "eliminado" to true,
+                                "sugerencias" to false,
+                                "imgUrl" to "borrada"
+                            )
+
+                            document.reference.update(actualizacionesProducto)
                                 .addOnSuccessListener {
-                                    // Eliminación exitosa del producto en Firestore
-                                    Log.d("Producto borrado", "Sí")
-                                    // Obtener la referencia del almacenamiento para la imagen asociada al producto
-                                    val productStorageRef = storage.reference.child("productos/$productId")
-                                    // Eliminar la imagen asociada al producto desde Firebase Storage
-                                    productStorageRef.delete()
-                                        .addOnFailureListener { exception ->
-                                            // Manejar error al eliminar la imagen asociada al producto
-                                            Log.e("Error", "Error al eliminar la imagen asociada al producto: $exception")
-                                        }
+                                    // Éxito al actualizar el producto
+                                    Log.d("Producto actualizado", "Campo 'eliminado' actualizado a true para el producto con ID: $productId")
+
+                                    // Si la imagen tiene una URL asociada, también la borramos del almacenamiento
+                                    if (!imgUrl.isNullOrEmpty()) {
+                                        val imagenRef = storage.getReferenceFromUrl(imgUrl)
+                                        imagenRef.delete()
+                                            .addOnSuccessListener {
+                                                // Eliminación exitosa de la imagen del almacenamiento
+                                                Log.d("Imagen de producto borrada", "Sí")
+                                            }
+                                            .addOnFailureListener { exception ->
+                                                Log.e("Error", "Error al borrar la imagen del almacenamiento: $exception")
+                                            }
+                                    }
                                 }
                                 .addOnFailureListener { exception ->
-                                    // Manejar error al eliminar el producto de Firestore
-                                    Log.e("Error", "Error al eliminar el producto de Firestore: $exception")
+                                    Log.e("Error", "Error al actualizar el campo 'eliminado' del producto en Firestore: $exception")
                                 }
                         }
-                        onComplete() // Llamada a onComplete después de eliminar todos los productos asociados
+                        onComplete() // Llamada a onComplete después de actualizar todos los productos asociados
                     }
                     .addOnFailureListener { exception ->
                         // Manejar error al obtener los productos asociados a la familia
@@ -177,8 +199,8 @@ class Firebase {
                     }
             }
             .addOnFailureListener { exception ->
-                // Manejar error al eliminar la familia de Firestore
-                Log.e("Error al eliminar la familia de Firestore", "$exception")
+                // Manejar error al actualizar la familia en Firestore
+                Log.e("Error", "Error al actualizar el campo 'eliminado' de la familia en Firestore: $exception")
                 onComplete() // Llamada a onComplete en caso de error
             }
     }
@@ -186,7 +208,9 @@ class Firebase {
     //ProductosActivity
     fun obtenerProductos(onComplete: (List<Producto>) -> Unit) {
         val listaProductos = mutableListOf<Producto>()
-        referenceProductos.get().addOnSuccessListener { querySnapshot ->
+        referenceProductos
+            .whereEqualTo("eliminado", false)
+            .get().addOnSuccessListener { querySnapshot ->
             for (document in querySnapshot.documents) {
                 val idProducto = document.id
                 val nombre = document.getString("nombre")
@@ -232,7 +256,9 @@ class Firebase {
 
     fun obtenerProductosFamilia(idFamilia: String, onComplete: (List<Producto>) -> Unit) {
         val listaProductos = mutableListOf<Producto>()
-        referenceProductos.whereEqualTo("idFamilia", idFamilia).get()
+        referenceProductos.whereEqualTo("idFamilia", idFamilia)
+            .whereEqualTo("eliminado", false)
+            .get()
             .addOnSuccessListener { querySnapshot ->
                 for (document in querySnapshot.documents) {
                     val idFirebase = document.id
@@ -261,6 +287,7 @@ class Firebase {
         datosProducto["precio"] = producto.precio
         datosProducto["imgUrl"] = ""
         datosProducto["idFamilia"] = producto.idFamilia
+        datosProducto["eliminado"] = false
         datosProducto["sugerencias"] = false
         datosProducto["veces_pedido"] = 0
 
@@ -290,12 +317,12 @@ class Firebase {
                         //modificamos el producto, teniendo ahora la url de descarga
                         referenceProductos.document(id)
                             .update("imgUrl", url)
-                            .addOnSuccessListener(OnSuccessListener<Void?> {
+                            .addOnSuccessListener{
                                 listenerSubirProductoActivity.onImageSubida(id)
-                            })
-                            .addOnFailureListener(OnFailureListener { exception ->
+                            }
+                            .addOnFailureListener{ exception ->
                                 Log.e("Error", "$exception")
-                            })
+                            }
                     }
                 }
                 .addOnFailureListener { exception ->
@@ -304,18 +331,25 @@ class Firebase {
         } else {
             referenceProductos.document(id)
                 .update("imgUrl", "no tiene")
-                .addOnSuccessListener(OnSuccessListener<Void?> {
+                .addOnSuccessListener{
                     listenerSubirProductoActivity.onImageSubida(id)
-                })
-                .addOnFailureListener(OnFailureListener { exception ->
+                }
+                .addOnFailureListener{ exception ->
                     Log.e("Error al subir la imagen", "$exception")
-                })
+                }
         }
     }
 
     fun borrarProducto(idProducto: String, imgUrl: String?, onComplete: () -> Unit) {
+        // Crear el mapa con los campos a actualizar
+        val actualizaciones = mapOf(
+            "eliminado" to true,
+            "sugerencias" to false,
+            "imgUrl" to "borrada"
+        )
+
         referenceProductos.document(idProducto)
-            .delete()
+            .update(actualizaciones)
             .addOnSuccessListener {
                 // Eliminación exitosa del documento de producto en Firestore
                 Log.d("Producto borrado", "Sí")
@@ -344,6 +378,7 @@ class Firebase {
             }
     }
 
+
     //Sugerencias
     fun actualizarSugerencias(idsProductosSeleccionados: MutableList<String>) {
         // Cambiamos las sugerencias que había a false
@@ -360,9 +395,9 @@ class Firebase {
                                     insertarRegistrosProductos(idsProductosSeleccionados)
                                 }
                             }
-                            .addOnFailureListener { e ->
+                            .addOnFailureListener { exception ->
                                 // Manejar error al actualizar sugerencias
-                                Log.e("Error", "Error al actualizar sugerencias: $e")
+                                Log.e("Error", "Error al actualizar sugerencias: $exception")
                             }
                     }
                 } else {
@@ -371,9 +406,9 @@ class Firebase {
                     Log.d("Exito", "Exito al insertar sugerencias")
                 }
             }
-            .addOnFailureListener { e ->
+            .addOnFailureListener { exception ->
                 // Manejar error al obtener productos con sugerencias
-                Log.e("Error", "Error al obtener productos con sugerencias: $e")
+                Log.e("Error", "Error al obtener productos con sugerencias: $exception")
             }
     }
 
@@ -387,9 +422,9 @@ class Firebase {
                     // Manejar éxito al insertar sugerencias
                     Log.d("Exito", "Exito al insertar sugerencias")
                 }
-                .addOnFailureListener { e ->
+                .addOnFailureListener { exception ->
                     // Manejar error al insertar sugerencias
-                    Log.e("Error", "Error al insertar sugerencias: $e")
+                    Log.e("Error", "Error al insertar sugerencias: $exception")
                 }
         }
     }

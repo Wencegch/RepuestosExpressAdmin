@@ -41,7 +41,7 @@ class FamiliasFragment : Fragment() {
     private lateinit var familias: ArrayList<Familia>
     private lateinit var familiasFiltradas: ArrayList<Familia>
     private var mActionMode: ActionMode? = null
-    private var posicionPulsada: Int = 0
+    private var posicionPulsada: Int = -1
     private lateinit var txtFiltroFamilia: EditText
 
     override fun onCreateView(inflater: LayoutInflater, container: ViewGroup?, savedInstanceState: Bundle?): View? {
@@ -62,8 +62,9 @@ class FamiliasFragment : Fragment() {
 
         familias = ArrayList()
         familiasFiltradas = ArrayList()
+
         recyclerView.layoutManager = LinearLayoutManager(requireContext())
-        familiasAdapter = RecyclerAdapterFamilias(familias)
+        familiasAdapter = RecyclerAdapterFamilias(familiasFiltradas)
         recyclerView.adapter = familiasAdapter
 
         txtFiltroFamilia.addTextChangedListener { userFilter ->
@@ -113,7 +114,7 @@ class FamiliasFragment : Fragment() {
                 if (familiaSeleccionada.selected && mActionMode == null) {
                     mActionMode = requireActivity().startActionMode(mActionCallback)
                 } else if (!familiaSeleccionada.selected && mActionMode != null) {
-                    mActionMode?.finish()
+                    mActionMode!!.finish()
                 }
             }
         })
@@ -131,7 +132,8 @@ class FamiliasFragment : Fragment() {
                 Firebase().obtenerFamiliaPorId(idFamiliaNueva) { nuevaFamilia ->
                     if (nuevaFamilia != null && !familias.contains(nuevaFamilia)) {
                         familias.add(nuevaFamilia)
-                        familiasAdapter.notifyItemInserted(familias.size)
+                        familiasFiltradas.add(nuevaFamilia)
+                        familiasAdapter.notifyDataSetChanged()
                     }
                 }
             }
@@ -176,7 +178,8 @@ class FamiliasFragment : Fragment() {
 
                         Firebase().borrarFamiliaYProductos(idFamilia) {
                             Utils.Toast(requireContext(), getString(R.string.familia_eliminada))
-                            familias.removeAt(posicionPulsada)
+                            familias.remove(familia)
+                            familiasFiltradas.remove(familia)
                             familiasAdapter.notifyDataSetChanged()
                         }
                     }

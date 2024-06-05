@@ -107,7 +107,7 @@ class ProductosActivity : AppCompatActivity() {
                     if (nuevoProducto != null && !productos.contains(nuevoProducto)) {
                         productos.add(nuevoProducto)
                         productosFiltrados.add(nuevoProducto)
-                        productosAdapter.notifyItemInserted(productosFiltrados.size)
+                        productosAdapter.notifyDataSetChanged()
                     }
                 }
             }

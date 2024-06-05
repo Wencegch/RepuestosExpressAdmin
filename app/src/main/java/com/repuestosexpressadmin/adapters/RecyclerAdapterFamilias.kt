@@ -16,7 +16,7 @@ class RecyclerAdapterFamilias(private var listFamilias: ArrayList<Familia>): Rec
 
     private lateinit var progressDrawable: CircularProgressDrawable
     private var onItemClickListener: OnItemClickListener? = null
-    private var onItemLongClickListener: RecyclerAdapterProductos.OnItemLongClickListener? = null
+    private var onItemLongClickListener: OnItemLongClickListener? = null
 
     override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): ViewHolder {
         val view = LayoutInflater.from(parent.context).inflate(R.layout.item_familia, parent, false)
