@@ -13,23 +13,33 @@ import com.repuestosexpressadmin.models.Pedido
 import com.repuestosexpressadmin.models.Producto
 import java.util.Calendar
 
+/**
+ * Clase que gestiona las operaciones con Firebase Firestore y Firebase Storage.
+ */
 class Firebase {
     private var referenceFamilias = FirebaseFirestore.getInstance().collection("Familias")
     private var referenceProductos = FirebaseFirestore.getInstance().collection("Productos")
     private var referencePedidos = FirebaseFirestore.getInstance().collection("Pedidos")
     private var storage = FirebaseStorage.getInstance()
 
+    // Interfaz para escuchar eventos de subida de producto
     interface OnSubirProductoListener {
         fun onProductoSubido(idProducto: String?)
         fun onImageSubida(idProducto: String?)
     }
 
+    // Interfaz para escuchar eventos de subida de familia
     interface OnSubirFamiliaListener {
         fun onFamiliaSubida(idFamilia: String?)
         fun onImageSubida(idFamilia: String?)
     }
 
     //FamiliasActivity
+
+    /**
+     * Obtiene todas las familias disponibles.
+     * @param onComplete La acción a realizar cuando se obtienen las familias.
+     */
     fun obtenerFamilias(onComplete: (List<Familia>) -> Unit) {
         val listaFamilias = mutableListOf<Familia>()
         referenceFamilias.whereEqualTo("eliminado", false)
@@ -52,6 +62,11 @@ class Firebase {
         }
     }
 
+    /**
+     * Obtiene una familia por su ID.
+     * @param idFamilia El ID de la familia que se desea obtener.
+     * @param onComplete La acción a realizar cuando se obtiene la familia.
+     */
     fun obtenerFamiliaPorId(idFamilia: String, onComplete: (Familia?) -> Unit) {
         referenceFamilias.document(idFamilia).get().addOnSuccessListener { document ->
             if (document != null && document.exists()) {
@@ -74,6 +89,11 @@ class Firebase {
         }
     }
 
+    /**
+     * Crea una nueva familia en Firestore.
+     * @param familia La familia que se va a crear.
+     * @param listenerSubirFamiliaActivity El listener para manejar eventos relacionados con la subida de la familia.
+     */
     fun crearFamilia(familia: Familia, listenerSubirFamiliaActivity: OnSubirFamiliaListener){
         val datosFamilia: MutableMap<String, Any> = HashMap()
         datosFamilia["nombre"] = familia.nombre
@@ -91,6 +111,12 @@ class Firebase {
         }
     }
 
+    /**
+     * Sube la imagen de una familia a Firebase Storage y actualiza su URL en Firestore.
+     * @param id El ID de la familia a la que pertenece la imagen.
+     * @param imagenUri La URI de la imagen que se va a subir.
+     * @param listenerSubirFamiliaActivity El listener para manejar eventos relacionados con la subida de la imagen.
+     */
     fun subirImagenFamilia(id: String, imagenUri: Uri?, listenerSubirFamiliaActivity: OnSubirFamiliaListener) {
         if (imagenUri != null) {
             val storageRef = storage.reference.child("familias/$id")
@@ -102,12 +128,12 @@ class Firebase {
                         //modificamos el producto, teniendo ahora la url de descarga
                         referenceFamilias.document(id)
                             .update("imgUrl", url)
-                            .addOnSuccessListener(OnSuccessListener<Void?> {
+                            .addOnSuccessListener {
                                 listenerSubirFamiliaActivity.onImageSubida(id)
-                            })
-                            .addOnFailureListener(OnFailureListener { exception ->
+                            }
+                            .addOnFailureListener { exception ->
                                 Log.e("Error", "$exception")
-                            })
+                            }
                     }
                 }
                 .addOnFailureListener { exception ->
@@ -206,6 +232,10 @@ class Firebase {
     }
 
     //ProductosActivity
+    /**
+     * Obtiene todos los productos disponibles.
+     * @param onComplete La acción a realizar cuando se obtienen los productos.
+     */
     fun obtenerProductos(onComplete: (List<Producto>) -> Unit) {
         val listaProductos = mutableListOf<Producto>()
         referenceProductos
@@ -230,6 +260,11 @@ class Firebase {
         }
     }
 
+    /**
+     * Obtiene un producto por su ID.
+     * @param idProducto El ID del producto que se desea obtener.
+     * @param onComplete La acción a realizar cuando se obtiene el producto.
+     */
     fun obtenerProductoPorId(idProducto: String, onComplete: (Producto?) -> Unit) {
         referenceProductos.document(idProducto).get().addOnSuccessListener { document ->
             if (document != null && document.exists()) {
@@ -254,6 +289,11 @@ class Firebase {
         }
     }
 
+    /**
+     * Obtiene todos los productos de una familia específica.
+     * @param idFamilia El ID de la familia de la que se quieren obtener los productos.
+     * @param onComplete La acción a realizar cuando se obtienen los productos.
+     */
     fun obtenerProductosFamilia(idFamilia: String, onComplete: (List<Producto>) -> Unit) {
         val listaProductos = mutableListOf<Producto>()
         referenceProductos.whereEqualTo("idFamilia", idFamilia)
@@ -280,6 +320,11 @@ class Firebase {
     }
 
     //SubirProductoActivity
+    /**
+     * Crea un nuevo producto en la base de datos.
+     * @param producto El producto que se va a crear.
+     * @param listenerSubirProductoActivity El listener para manejar eventos relacionados con la subida del producto.
+     */
     fun crearProducto(producto: Producto, listenerSubirProductoActivity: OnSubirProductoListener) {
         // Crea un mapa de datos para el producto
         val datosProducto: MutableMap<String, Any> = HashMap()
@@ -306,6 +351,12 @@ class Firebase {
             }
     }
 
+    /**
+     * Sube una imagen para un producto a Firebase Storage y actualiza la URL de la imagen en Firestore.
+     * @param id El ID del producto al que se subirá la imagen.
+     * @param imagenUri La URI de la imagen que se va a subir.
+     * @param listenerSubirProductoActivity El listener para manejar eventos relacionados con la subida de la imagen del producto.
+     */
     fun subirImagenProducto(id: String, imagenUri: Uri?, listenerSubirProductoActivity: OnSubirProductoListener) {
         if (imagenUri != null) {
             val storageRef = storage.reference.child("productos/$id")
@@ -340,6 +391,12 @@ class Firebase {
         }
     }
 
+    /**
+     * Borra un producto de Firestore y su imagen asociada de Firebase Storage.
+     * @param idProducto El ID del producto que se va a borrar.
+     * @param imgUrl La URL de la imagen asociada al producto, si existe.
+     * @param onComplete Callback para manejar la finalización del proceso de borrado.
+     */
     fun borrarProducto(idProducto: String, imgUrl: String?, onComplete: () -> Unit) {
         // Crear el mapa con los campos a actualizar
         val actualizaciones = mapOf(
@@ -380,6 +437,10 @@ class Firebase {
 
 
     //Sugerencias
+    /**
+     * Actualiza las sugerencias de productos en Firestore.
+     * @param idsProductosSeleccionados Lista de IDs de productos seleccionados como sugerencias.
+     */
     fun actualizarSugerencias(idsProductosSeleccionados: MutableList<String>) {
         // Cambiamos las sugerencias que había a false
         referenceProductos
@@ -412,6 +473,10 @@ class Firebase {
             }
     }
 
+    /**
+     * Inserta registros de productos como sugerencias en Firestore.
+     * @param idsProductosSeleccionados Lista de IDs de productos seleccionados como sugerencias.
+     */
     private fun insertarRegistrosProductos(idsProductosSeleccionados: MutableList<String>) {
         // Añadimos los nuevos
         idsProductosSeleccionados.forEach { productId ->
@@ -429,6 +494,10 @@ class Firebase {
         }
     }
 
+    /**
+     * Obtiene los pedidos pendientes de Firestore.
+     * @param onComplete Callback que se llama cuando se completó la obtención de los pedidos.
+     */
     fun obtenerPedidosPendientes(onComplete: (List<Pedido>) -> Unit) {
         val listaPedidos = mutableListOf<Pedido>()
         referencePedidos
@@ -454,6 +523,10 @@ class Firebase {
             }
     }
 
+    /**
+     * Obtiene los pedidos finalizados de Firestore.
+     * @param onComplete Callback que se llama cuando se completó la obtención de los pedidos.
+     */
     fun obtenerPedidosFinalizados(onComplete: (List<Pedido>) -> Unit) {
         val listaPedidos = mutableListOf<Pedido>()
         referencePedidos
@@ -479,6 +552,11 @@ class Firebase {
             }
     }
 
+    /**
+     * Borra un pedido y todas sus líneas de pedido asociadas por su ID.
+     * @param pedidoId ID del pedido a borrar.
+     * @param onComplete Callback que se llama cuando se completa la operación. Devuelve true si la operación fue exitosa, de lo contrario false.
+     */
     fun borrarPedidoPorId(pedidoId: String, onComplete: (Boolean) -> Unit) {
         // Primero obtener y eliminar todas las líneas de pedido en la subcolección "lineas"
         referencePedidos.document(pedidoId).collection("lineas")
@@ -513,6 +591,11 @@ class Firebase {
             }
     }
 
+    /**
+     * Obtiene todas las líneas de pedido asociadas a un pedido por su ID.
+     * @param pedidoId ID del pedido del cual se obtendrán las líneas de pedido.
+     * @param onComplete Callback que se llama cuando se completa la operación. Devuelve una lista de objetos LineasPedido.
+     */
     fun obtenerLineasDePedido(pedidoId: String, onComplete: (List<LineasPedido>) -> Unit) {
         val lineasPedido = mutableListOf<LineasPedido>()
 
@@ -534,6 +617,12 @@ class Firebase {
             }
     }
 
+    /**
+     * Actualiza el estado de un pedido y realiza operaciones adicionales según el estado.
+     * @param id ID del pedido que se actualizará.
+     * @param estado Nuevo estado del pedido.
+     * @param onComplete Callback que se llama cuando se completa la operación. Devuelve un booleano que indica si la operación se realizó con éxito.
+     */
     fun actualizarEstadoPedido(id: String, estado: String, onComplete: (Boolean) -> Unit) {
         referencePedidos.document(id)
             .update("estado", estado)

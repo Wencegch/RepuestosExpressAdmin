@@ -18,8 +18,11 @@ import com.repuestosexpressadmin.adapters.RecyclerAdapterPedidos
 import com.repuestosexpressadmin.controllers.DetallePedidoActivity
 import com.repuestosexpressadmin.models.Pedido
 import com.repuestosexpressadmin.utils.Firebase
-import com.repuestosexpressadmin.utils.Utils
 
+/**
+ * Fragmento que muestra una lista de pedidos pendientes.
+ * Permite al usuario filtrar los pedidos por ID y ver detalles de un pedido seleccionado.
+ */
 class PedidosPendientesFragment : Fragment() {
     private lateinit var recyclerView: RecyclerView
     private lateinit var pedidosAdapter: RecyclerAdapterPedidos
@@ -28,11 +31,26 @@ class PedidosPendientesFragment : Fragment() {
     private lateinit var detallePedidoLauncher: ActivityResultLauncher<Intent>
     private lateinit var txtFiltroPendiente: EditText
 
+    /**
+     * Método llamado para inflar el diseño de este fragmento.
+     * @param inflater El objeto LayoutInflater utilizado para inflar el diseño.
+     * @param container El contenedor en el que se debe inflar el diseño.
+     * @param savedInstanceState Estado previamente guardado de este fragmento.
+     * @return La vista inflada.
+     */
     override fun onCreateView(inflater: LayoutInflater, container: ViewGroup?, savedInstanceState: Bundle?): View? {
-        // Inflate the layout for this fragment
+        // Inflar el diseño del fragmento
         return inflater.inflate(R.layout.fragment_pedidos_pendientes, container, false)
     }
 
+    /**
+     * Método llamado cuando la vista del fragmento ha sido creada.
+     * Inicializa los componentes de la interfaz de usuario, configura el adaptador del RecyclerView
+     * y establece un listener para el filtro de pedidos por ID.
+     * También inicializa el launcher para la actividad de detalle de pedido y actualiza la lista de pedidos pendientes.
+     * @param view La vista inflada.
+     * @param savedInstanceState Estado previamente guardado de este fragmento.
+     */
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
 
@@ -72,6 +90,9 @@ class PedidosPendientesFragment : Fragment() {
         })
     }
 
+    /**
+     * Método privado utilizado para actualizar la lista de pedidos pendientes desde Firebase.
+     */
     private fun actualizarListaPedidos() {
         Firebase().obtenerPedidosPendientes() { listaPedidos ->
             pedidos.clear()
@@ -82,3 +103,4 @@ class PedidosPendientesFragment : Fragment() {
         }
     }
 }
+

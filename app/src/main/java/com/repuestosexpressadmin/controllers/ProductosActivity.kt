@@ -25,6 +25,9 @@ import com.repuestosexpressadmin.models.Producto
 import com.repuestosexpressadmin.utils.Firebase
 import com.repuestosexpressadmin.utils.Utils
 
+/**
+ * Actividad que muestra una lista de productos y permite su gestión.
+ */
 class ProductosActivity : AppCompatActivity() {
 
     private lateinit var productosAdapter: RecyclerAdapterProductos
@@ -36,6 +39,10 @@ class ProductosActivity : AppCompatActivity() {
     private var posicionPulsada: Int = -1
     private lateinit var txtFiltroProducto: EditText
 
+    /**
+     * Método llamado cuando la actividad es creada.
+     * @param savedInstanceState Estado guardado de la actividad.
+     */
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_productos)
@@ -93,11 +100,19 @@ class ProductosActivity : AppCompatActivity() {
         })
     }
 
+    /**
+     * Método para crear el menú de opciones.
+     * @param menu El menú de opciones.
+     * @return true si el menú se creó correctamente.
+     */
     override fun onCreateOptionsMenu(menu: Menu?): Boolean {
         menuInflater.inflate(R.menu.add_menu, menu)
         return super.onCreateOptionsMenu(menu)
     }
 
+    /**
+     * Callback para manejar el resultado de la actividad de subir un producto.
+     */
     private val subirProductoLauncher = registerForActivityResult(ActivityResultContracts.StartActivityForResult()) { result ->
         if (result.resultCode == RESULT_OK) {
             val data: Intent? = result.data
@@ -114,6 +129,11 @@ class ProductosActivity : AppCompatActivity() {
         }
     }
 
+    /**
+     * Método para manejar la selección de opciones del menú.
+     * @param item La opción del menú seleccionada.
+     * @return true si la opción se manejó correctamente.
+     */
     override fun onOptionsItemSelected(item: MenuItem): Boolean {
         val itemId = item.itemId
         when (itemId) {
@@ -126,6 +146,9 @@ class ProductosActivity : AppCompatActivity() {
         return super.onOptionsItemSelected(item)
     }
 
+    /**
+     * Callback para manejar la acción de modo de acción contextual.
+     */
     private val mActionCallback: ActionMode.Callback = object : ActionMode.Callback {
 
         override fun onCreateActionMode(actionMode: ActionMode, menu: Menu): Boolean {

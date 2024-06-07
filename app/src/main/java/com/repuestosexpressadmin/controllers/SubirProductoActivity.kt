@@ -22,7 +22,10 @@ import com.repuestosexpressadmin.utils.Firebase
 import com.repuestosexpressadmin.utils.Utils
 import java.io.IOException
 
-class SubirProductoActivity : AppCompatActivity(), Firebase.OnSubirProductoListener{
+/**
+ * Actividad para subir un nuevo producto.
+ */
+class SubirProductoActivity : AppCompatActivity(), Firebase.OnSubirProductoListener {
 
     private lateinit var txtNombreProducto: EditText
     private lateinit var txtPrecioProducto: EditText
@@ -37,12 +40,14 @@ class SubirProductoActivity : AppCompatActivity(), Firebase.OnSubirProductoListe
         const val CODE_PICTURE = 1
     }
 
+    /**
+     * Lanzador para seleccionar una imagen.
+     */
     private val seleccionarImagenLauncher =
         registerForActivityResult(ActivityResultContracts.StartActivityForResult()) { result ->
             if (result.resultCode == RESULT_OK) {
                 val data: Intent? = result.data
                 imagenUri = data?.data!!
-                // Cargar la imagen en el ImageView si la URI de la imagen no es nula
                 if (imagenUri != null) {
                     imgSubirProducto.setImageURI(imagenUri)
                     Log.i("Imagen Uri", "$imagenUri")
@@ -50,7 +55,10 @@ class SubirProductoActivity : AppCompatActivity(), Firebase.OnSubirProductoListe
             }
         }
 
-
+    /**
+     * Método llamado cuando la actividad es creada.
+     * @param savedInstanceState Estado guardado de la actividad.
+     */
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_subir_producto)
@@ -74,53 +82,43 @@ class SubirProductoActivity : AppCompatActivity(), Firebase.OnSubirProductoListe
 
         btnAddProducto.setOnClickListener {
             val idFamilia = intent.getStringExtra("idFamilia")
-            Log.i("idFamilia", "$idFamilia")
 
-            // Verificar que el campo de nombre del producto no esté vacío
             if (txtNombreProducto.text.isNotEmpty()) {
-                // Verificar que el campo de precio del producto no esté vacío
                 if (txtPrecioProducto.text.isNotEmpty()) {
-                    // Convertir el texto del campo de precio a un valor numérico
                     val precio = txtPrecioProducto.text.toString().toDoubleOrNull()
 
-                    // Verificar que se pudo convertir el precio correctamente y que no es null
-                    if (precio != null) {
-                        // Llamar al método crearProducto de Firebase y pasar el nuevo producto
+                    if (precio != null && precio > 0)  {
                         val producto = Producto(txtNombreProducto.text.toString(), precio, "", idFamilia!!)
                         firebase.crearProducto(producto, this)
                     } else {
-                        // Notificar al usuario que el precio ingresado no es válido
                         Utils.Toast(this, getString(R.string.ingresar_precio_valido))
                     }
                 } else {
-                    // Notificar al usuario que el campo de precio es obligatorio
                     Utils.Toast(this, getString(R.string.ingresar_precio))
                     txtPrecioProducto.error = getString(R.string.requerido)
                 }
             } else {
                 txtNombreProducto.error = getString(R.string.requerido)
-                // Notificar al usuario que el campo de nombre es obligatorio
                 Utils.Toast(this, getString(R.string.ingresar_nombre))
             }
-
         }
-
     }
 
-    // Método para cuando se obtiene una imagen de la galería
+    /**
+     * Método para manejar el resultado de la selección de una imagen de la galería.
+     * @param requestCode Código de solicitud.
+     * @param resultCode Código de resultado.
+     * @param data Intent que contiene la URI de la imagen seleccionada.
+     */
     override fun onActivityResult(requestCode: Int, resultCode: Int, data: Intent?) {
         super.onActivityResult(requestCode, resultCode, data)
         when (requestCode) {
             CODE_PICTURE -> {
                 if (resultCode == RESULT_OK && data != null) {
-                    // Obtiene la URI de la imagen seleccionada
                     imagenUri = data.data
                     try {
-                        // Utiliza ImageDecoder para decodificar la imagen URI a un Bitmap
                         val source: ImageDecoder.Source = ImageDecoder.createSource(contentResolver, imagenUri!!)
                         bitmap = ImageDecoder.decodeBitmap(source)
-
-                        // Muestra el Bitmap en el ImageView
                         imgSubirProducto.setImageBitmap(bitmap)
                     } catch (e: IOException) {
                         e.printStackTrace()
@@ -130,6 +128,9 @@ class SubirProductoActivity : AppCompatActivity(), Firebase.OnSubirProductoListe
         }
     }
 
+    /**
+     * Lanzador de solicitud de permiso.
+     */
     private val requestPermissionLauncher =
         registerForActivityResult(ActivityResultContracts.RequestPermission()) { isGranted: Boolean ->
             if (isGranted) {
@@ -139,6 +140,9 @@ class SubirProductoActivity : AppCompatActivity(), Firebase.OnSubirProductoListe
             }
         }
 
+    /**
+     * Método para pedir permisos de lectura de almacenamiento externo.
+     */
     private fun pedirPermisos() {
         when {
             ContextCompat.checkSelfPermission(this, Manifest.permission.READ_EXTERNAL_STORAGE) == PackageManager.PERMISSION_GRANTED -> {
@@ -155,11 +159,18 @@ class SubirProductoActivity : AppCompatActivity(), Firebase.OnSubirProductoListe
         }
     }
 
+    /**
+     * Método para abrir la galería y seleccionar una imagen.
+     */
     private fun abrirGaleria() {
         val intent = Intent(Intent.ACTION_PICK, MediaStore.Images.Media.EXTERNAL_CONTENT_URI)
         seleccionarImagenLauncher.launch(intent)
     }
 
+    /**
+     * Método llamado cuando se sube un producto.
+     * @param idProducto ID del producto subido.
+     */
     override fun onProductoSubido(idProducto: String?) {
         if (idProducto != null) {
             if (imagenUri != null) {
@@ -172,6 +183,10 @@ class SubirProductoActivity : AppCompatActivity(), Firebase.OnSubirProductoListe
         }
     }
 
+    /**
+     * Método llamado cuando se sube la imagen de un producto.
+     * @param idProducto ID del producto cuya imagen fue subida.
+     */
     override fun onImageSubida(idProducto: String?) {
         val returnIntent = Intent().apply {
             putExtra("idProducto", idProducto)

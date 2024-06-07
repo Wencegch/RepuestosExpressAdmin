@@ -9,7 +9,6 @@ import androidx.core.content.ContextCompat
 import androidx.fragment.app.Fragment
 import androidx.viewpager2.widget.ViewPager2
 import com.google.android.material.tabs.TabLayout
-import com.google.android.material.tabs.TabLayout.OnTabSelectedListener
 import com.repuestosexpressadmin.R
 import com.repuestosexpressadmin.adapters.ViewPagerAdapter
 
@@ -24,11 +23,25 @@ class PedidosFragment : Fragment() {
     private lateinit var viewPager2: ViewPager2
     private lateinit var viewAdapter: ViewPagerAdapter
 
+    /**
+     * Método llamado para inflar el diseño de este fragmento.
+     * @param inflater El objeto LayoutInflater utilizado para inflar el diseño.
+     * @param container El contenedor en el que se debe inflar el diseño.
+     * @param savedInstanceState Estado previamente guardado de este fragmento.
+     * @return La vista inflada.
+     */
     override fun onCreateView(inflater: LayoutInflater, container: ViewGroup?, savedInstanceState: Bundle?): View? {
         // Inflar el diseño del fragmento
         return inflater.inflate(R.layout.fragment_pedidos, container, false)
     }
 
+    /**
+     * Método llamado cuando la vista del fragmento ha sido creada.
+     * Inicializa los componentes de la interfaz de usuario y configura el adaptador del ViewPager2.
+     * También maneja los eventos de selección de pestañas en el TabLayout.
+     * @param view La vista inflada.
+     * @param savedInstanceState Estado previamente guardado de este fragmento.
+     */
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
 
@@ -46,7 +59,7 @@ class PedidosFragment : Fragment() {
         viewPager2.adapter = viewAdapter
 
         // Escuchar los eventos de selección de pestañas en el TabLayout
-        tabLayout.addOnTabSelectedListener(object : OnTabSelectedListener {
+        tabLayout.addOnTabSelectedListener(object : TabLayout.OnTabSelectedListener {
             override fun onTabSelected(selectedTab: TabLayout.Tab?) {
                 if (selectedTab != null) {
                     // Cambiar la página del ViewPager2 al seleccionar una pestaña
@@ -72,3 +85,4 @@ class PedidosFragment : Fragment() {
         })
     }
 }
+

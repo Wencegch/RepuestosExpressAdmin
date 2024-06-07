@@ -22,6 +22,9 @@ import com.repuestosexpressadmin.utils.Firebase
 import com.repuestosexpressadmin.utils.Utils
 import java.io.IOException
 
+/**
+ * Actividad para subir una nueva familia de productos.
+ */
 class SubirFamiliaActivity : AppCompatActivity(), Firebase.OnSubirFamiliaListener {
 
     private lateinit var txtNombreFamilia: EditText
@@ -33,6 +36,10 @@ class SubirFamiliaActivity : AppCompatActivity(), Firebase.OnSubirFamiliaListene
     private var imagenUri: Uri? = null
     private var bitmap: Bitmap? = null
 
+    /**
+     * Método llamado cuando la actividad es creada.
+     * @param savedInstanceState Estado guardado de la actividad.
+     */
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_subir_familia)
@@ -59,29 +66,30 @@ class SubirFamiliaActivity : AppCompatActivity(), Firebase.OnSubirFamiliaListene
                 if(txtInfoFamilia.text.isNotEmpty()) {
                     val familia = Familia(txtNombreFamilia.text.toString(), txtInfoFamilia.text.toString(), "")
                     firebase.crearFamilia(familia, this)
-                }else{
+                } else {
                     txtInfoFamilia.error = getString(R.string.requerido)
                 }
-            }else{
+            } else {
                 txtNombreFamilia.error = getString(R.string.requerido)
             }
         }
     }
 
-    // Método para cuando se obtiene una imagen de la galería
+    /**
+     * Método para manejar el resultado de la selección de una imagen de la galería.
+     * @param requestCode Código de solicitud.
+     * @param resultCode Código de resultado.
+     * @param data Intent que contiene la URI de la imagen seleccionada.
+     */
     override fun onActivityResult(requestCode: Int, resultCode: Int, data: Intent?) {
         super.onActivityResult(requestCode, resultCode, data)
         when (requestCode) {
             SubirProductoActivity.CODE_PICTURE -> {
                 if (resultCode == RESULT_OK && data != null) {
-                    // Obtiene la URI de la imagen seleccionada
                     imagenUri = data.data
                     try {
-                        // Utiliza ImageDecoder para decodificar la imagen URI a un Bitmap
                         val source: ImageDecoder.Source = ImageDecoder.createSource(contentResolver, imagenUri!!)
                         bitmap = ImageDecoder.decodeBitmap(source)
-
-                        // Muestra el Bitmap en el ImageView
                         imgSubirFamilia.setImageBitmap(bitmap)
                     } catch (e: IOException) {
                         e.printStackTrace()
@@ -91,6 +99,9 @@ class SubirFamiliaActivity : AppCompatActivity(), Firebase.OnSubirFamiliaListene
         }
     }
 
+    /**
+     * Lanzador de solicitud de permiso.
+     */
     private val requestPermissionLauncher =
         registerForActivityResult(ActivityResultContracts.RequestPermission()) { isGranted: Boolean ->
             if (isGranted) {
@@ -101,12 +112,14 @@ class SubirFamiliaActivity : AppCompatActivity(), Firebase.OnSubirFamiliaListene
             }
         }
 
+    /**
+     * Lanzador para seleccionar una imagen.
+     */
     private val seleccionarImagenLauncher =
         registerForActivityResult(ActivityResultContracts.StartActivityForResult()) { result ->
             if (result.resultCode == RESULT_OK) {
                 val data: Intent? = result.data
                 imagenUri = data?.data!!
-                // Cargar la imagen en el ImageView si la URI de la imagen no es nula
                 if (imagenUri != null) {
                     imgSubirFamilia.setImageURI(imagenUri)
                     Log.i("Imagen Uri", "$imagenUri")
@@ -114,6 +127,9 @@ class SubirFamiliaActivity : AppCompatActivity(), Firebase.OnSubirFamiliaListene
             }
         }
 
+    /**
+     * Método para pedir permisos de lectura de almacenamiento externo.
+     */
     private fun pedirPermisos() {
         when {
             ContextCompat.checkSelfPermission(this, Manifest.permission.READ_EXTERNAL_STORAGE) == PackageManager.PERMISSION_GRANTED -> {
@@ -130,24 +146,34 @@ class SubirFamiliaActivity : AppCompatActivity(), Firebase.OnSubirFamiliaListene
         }
     }
 
+    /**
+     * Método para abrir la galería y seleccionar una imagen.
+     */
     private fun abrirGaleria() {
         val intent = Intent(Intent.ACTION_PICK, MediaStore.Images.Media.EXTERNAL_CONTENT_URI)
         seleccionarImagenLauncher.launch(intent)
     }
 
+    /**
+     * Método llamado cuando se sube una familia.
+     * @param idFamilia ID de la familia subida.
+     */
     override fun onFamiliaSubida(idFamilia: String?) {
         if (idFamilia != null) {
             if (imagenUri != null) {
                 firebase.subirImagenFamilia(idFamilia, imagenUri, this)
-            }else {
+            } else {
                 firebase.subirImagenFamilia(idFamilia, null, this)
             }
         } else {
             Log.e("onProductoSubido", "El Id del producto es nulo")
-
         }
     }
 
+    /**
+     * Método llamado cuando se sube la imagen de una familia.
+     * @param idFamilia ID de la familia cuya imagen fue subida.
+     */
     override fun onImageSubida(idFamilia: String?) {
         val returnIntent = Intent().apply {
             putExtra("idFamilia", idFamilia)

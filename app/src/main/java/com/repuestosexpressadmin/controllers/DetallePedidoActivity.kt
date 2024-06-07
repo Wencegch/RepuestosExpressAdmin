@@ -24,6 +24,9 @@ import com.repuestosexpressadmin.utils.Firebase
 import com.repuestosexpressadmin.utils.Utils
 import java.text.SimpleDateFormat
 
+/**
+ * Actividad para mostrar el detalle de un pedido.
+ */
 class DetallePedidoActivity : AppCompatActivity() {
     private var pedido: Pedido? = null
     private lateinit var recyclerView: RecyclerView
@@ -37,10 +40,15 @@ class DetallePedidoActivity : AppCompatActivity() {
     private lateinit var btnCancelar: Button
     private lateinit var btnFinalizarPedido: Button
 
+    /**
+     * Método llamado cuando la actividad es creada.
+     * @param savedInstanceState Estado guardado de la actividad.
+     */
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_detalle_pedido)
 
+        // Inicialización de vistas
         recyclerView = findViewById(R.id.recyclerViewDetallePedido)
         textoPedidoId = findViewById(R.id.txtDetallePedidoId)
         textoFecha = findViewById(R.id.txtDetallePedidoFecha)
@@ -49,25 +57,31 @@ class DetallePedidoActivity : AppCompatActivity() {
         btnCancelar = findViewById(R.id.btn_CancelarPedido)
         btnFinalizarPedido = findViewById(R.id.btn_FinalizarPedido)
 
+        // Configuración de la ActionBar
         supportActionBar?.apply {
             title = getString(R.string.detalles_pedido)
             setBackgroundDrawable(ContextCompat.getDrawable(this@DetallePedidoActivity, R.color.green))
         }
 
+        // Inicialización de listas
         pedidos = ArrayList()
         productos = ArrayList()
 
+        // Configuración del RecyclerView
         recyclerView.layoutManager = LinearLayoutManager(this, LinearLayoutManager.HORIZONTAL, false)
-        detalleAdapter = RecyclerAdapterDetallePedidos(pedidos) // Pasamos pedidos al adaptador
+        detalleAdapter = RecyclerAdapterDetallePedidos(pedidos)
         recyclerView.adapter = detalleAdapter
 
+        // Obtención del pedido desde el intent
         pedido = intent.getSerializableExtra("pedido") as Pedido
 
+        // Verificar estado del pedido
         if (pedido!!.estado == "Finalizado") {
             btnCancelar.visibility = android.view.View.GONE
             btnFinalizarPedido.visibility = android.view.View.GONE
         }
 
+        // Obtención de líneas de pedido desde Firebase
         Firebase().obtenerLineasDePedido(pedido!!.id) { listaPedidos ->
             pedidos.addAll(listaPedidos)
             textoPedidoId.text = getString(R.string.id, pedido!!.id)
@@ -79,6 +93,7 @@ class DetallePedidoActivity : AppCompatActivity() {
             obtenerProductosParaLineas()
         }
 
+        // Configuración del botón cancelar
         btnCancelar.setOnClickListener {
             BeautifulDialog.build(this)
                 .title(getString(R.string.cancelar_pedido), titleColor = R.color.black)
@@ -99,6 +114,7 @@ class DetallePedidoActivity : AppCompatActivity() {
                 .onNegative(text = getString(android.R.string.cancel)) {}
         }
 
+        // Configuración del botón finalizar
         btnFinalizarPedido.setOnClickListener {
             BeautifulDialog.build(this)
                 .title(getString(R.string.finalizar_pedido), titleColor = R.color.black)
@@ -118,12 +134,12 @@ class DetallePedidoActivity : AppCompatActivity() {
                     }
                 }
                 .onNegative(text = getString(android.R.string.cancel)) {}
-
-
         }
-
     }
 
+    /**
+     * Obtiene los productos para las líneas de pedido y actualiza el adaptador.
+     */
     private fun obtenerProductosParaLineas() {
         var pendingCallbacks = pedidos.size
         if (pendingCallbacks == 0) {

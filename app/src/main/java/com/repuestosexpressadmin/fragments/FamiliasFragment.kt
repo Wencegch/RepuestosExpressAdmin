@@ -3,7 +3,6 @@ package com.repuestosexpressadmin.fragments
 import android.app.Activity
 import android.content.Intent
 import android.os.Bundle
-import android.util.Log
 import android.view.ActionMode
 import android.view.LayoutInflater
 import android.view.Menu
@@ -34,6 +33,9 @@ import com.repuestosexpressadmin.models.Familia
 import com.repuestosexpressadmin.utils.Firebase
 import com.repuestosexpressadmin.utils.Utils
 
+/**
+ * Fragmento para mostrar la lista de familias y sus productos asociados.
+ */
 class FamiliasFragment : Fragment() {
 
     private lateinit var familiasAdapter: RecyclerAdapterFamilias
@@ -44,11 +46,17 @@ class FamiliasFragment : Fragment() {
     private var posicionPulsada: Int = -1
     private lateinit var txtFiltroFamilia: EditText
 
+    /**
+     * Método llamado para crear la vista del fragmento.
+     */
     override fun onCreateView(inflater: LayoutInflater, container: ViewGroup?, savedInstanceState: Bundle?): View? {
         setHasOptionsMenu(true)
         return inflater.inflate(R.layout.fragment_familias, container, false)
     }
 
+    /**
+     * Método llamado cuando la vista del fragmento ha sido creada.
+     */
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
 
@@ -84,11 +92,10 @@ class FamiliasFragment : Fragment() {
 
         familiasAdapter.setOnItemClickListener(object : RecyclerAdapterFamilias.OnItemClickListener {
             override fun onItemClick(position: Int) {
-                // Verificar si hay alguna familia seleccionada
                 val haySeleccionadas = familias.any { it.selected }
                 if (haySeleccionadas) {
                     mActionMode?.finish()
-                }else{
+                } else {
                     val familiaSeleccionada = familias[position]
                     val intent = Intent(requireContext(), ProductosActivity::class.java).apply {
                         putExtra("Idfamilia", familiaSeleccionada.id)
@@ -120,10 +127,30 @@ class FamiliasFragment : Fragment() {
         })
     }
 
+    /**
+     * Método para crear el menú de opciones del fragmento.
+     */
     override fun onCreateOptionsMenu(menu: Menu, inflater: MenuInflater) {
         inflater.inflate(R.menu.add_menu, menu)
     }
 
+    /**
+     * Método llamado cuando se selecciona un elemento del menú de opciones.
+     */
+    override fun onOptionsItemSelected(item: MenuItem): Boolean {
+        when (item.itemId) {
+            R.id.btn_Add -> {
+                val i = Intent(requireContext(), SubirFamiliaActivity::class.java)
+                subirFamiliaLauncher.launch(i)
+                return true
+            }
+            else -> return super.onOptionsItemSelected(item)
+        }
+    }
+
+    /**
+     * Lanzador de actividad para el resultado de la subida de una nueva familia.
+     */
     private val subirFamiliaLauncher = registerForActivityResult(ActivityResultContracts.StartActivityForResult()) { result ->
         if (result.resultCode == AppCompatActivity.RESULT_OK) {
             val data: Intent? = result.data
@@ -140,17 +167,9 @@ class FamiliasFragment : Fragment() {
         }
     }
 
-    override fun onOptionsItemSelected(item: MenuItem): Boolean {
-        when (item.itemId) {
-            R.id.btn_Add -> {
-                val i = Intent(requireContext(), SubirFamiliaActivity::class.java)
-                subirFamiliaLauncher.launch(i)
-                return true
-            }
-            else -> return super.onOptionsItemSelected(item)
-        }
-    }
-
+    /**
+     * Callback para las acciones del modo de acción contextual.
+     */
     private val mActionCallback: ActionMode.Callback = object : ActionMode.Callback {
 
         override fun onCreateActionMode(actionMode: ActionMode, menu: Menu): Boolean {
@@ -166,7 +185,6 @@ class FamiliasFragment : Fragment() {
         override fun onActionItemClicked(actionMode: ActionMode, menuItem: MenuItem): Boolean {
             val itemId = menuItem.itemId
             if (itemId == R.id.btn_Borrar) {
-
                 BeautifulDialog.build(requireContext() as Activity)
                     .title(getString(R.string.borrar_familia), titleColor = R.color.black)
                     .description(getString(R.string.perder_informacion_familia))
