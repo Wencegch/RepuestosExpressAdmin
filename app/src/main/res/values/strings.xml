@@ -53,4 +53,11 @@
     <string name="filtro_por_id">Buscar por Id</string>
     <string name="filtro_familia">Buscar familia</string>
     <string name="filtro_producto">Buscar producto</string>
+    <string name="introducir_cuenta_administrador">Se debe introducir una cuenta de administrador</string>
+    <string name="seleccionar_minimo_sugerencias">Selecciona un mínimo de dos sugerencias</string>
+    <string name="guardar_email">Guardar email</string>
+    <string name="inicio_sesion_administrador">Inicio de Sesión de Administrador</string>
+    <string name="correo_electronico">Correo electrónico</string>
+    <string name="contraseña">Contraseña</string>
+    <string name="inicio_sesion">Iniciar sesión</string>
 </resources>

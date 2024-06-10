@@ -2,8 +2,6 @@ package com.repuestosexpressadmin.utils
 
 import android.net.Uri
 import android.util.Log
-import com.google.android.gms.tasks.OnFailureListener
-import com.google.android.gms.tasks.OnSuccessListener
 import com.google.firebase.firestore.FieldValue
 import com.google.firebase.firestore.FirebaseFirestore
 import com.google.firebase.storage.FirebaseStorage
@@ -20,6 +18,8 @@ class Firebase {
     private var referenceFamilias = FirebaseFirestore.getInstance().collection("Familias")
     private var referenceProductos = FirebaseFirestore.getInstance().collection("Productos")
     private var referencePedidos = FirebaseFirestore.getInstance().collection("Pedidos")
+    private var referenceUsuarios = FirebaseFirestore.getInstance().collection("Usuarios")
+
     private var storage = FirebaseStorage.getInstance()
 
     // Interfaz para escuchar eventos de subida de producto
@@ -660,4 +660,23 @@ class Firebase {
             }
     }
 
+    fun iniciarSesion(email: String, onComplete: (Boolean) -> Unit) {
+        referenceUsuarios
+            .whereEqualTo("email", email)
+            .whereEqualTo("administrador", true)
+            .get()
+            .addOnSuccessListener { querySnapshot ->
+                if (!querySnapshot.isEmpty) {
+                    // El correo electrónico existe y el usuario es administrador
+                    onComplete(true)
+                } else {
+                    // El correo electrónico no existe o el usuario no es administrador
+                    onComplete(false)
+                }
+            }
+            .addOnFailureListener { exception ->
+                Log.e("Error", "Error al verificar el usuario: $exception")
+                onComplete(false)
+            }
+    }
 }

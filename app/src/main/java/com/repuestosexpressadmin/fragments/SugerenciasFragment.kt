@@ -87,9 +87,13 @@ class SugerenciasFragment : Fragment() {
                         idsProductosSeleccionados.add(producto.id)
                     }
                 }
-                Firebase().actualizarSugerencias(idsProductosSeleccionados)
-                Utils.Toast(requireContext(), getString(R.string.sugerencias_enviadas))
-                productosAdapter.deseleccionarTodos()
+                if (idsProductosSeleccionados.isEmpty() || idsProductosSeleccionados.size < 2) {
+                    Utils.Toast(requireContext(), getString(R.string.seleccionar_minimo_sugerencias))
+                } else {
+                    Firebase().actualizarSugerencias(idsProductosSeleccionados)
+                    Utils.Toast(requireContext(), getString(R.string.sugerencias_enviadas))
+                    productosAdapter.deseleccionarTodos()
+                }
                 return true
             }
         }
