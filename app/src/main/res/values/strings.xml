@@ -60,4 +60,6 @@
     <string name="correo_electronico">Correo electrónico</string>
     <string name="contraseña">Contraseña</string>
     <string name="inicio_sesion">Iniciar sesión</string>
+    <string name="direccion">Direccion: %1$s</string>
+    <string name="metodo_pago">Método de pago: %1$s</string>
 </resources>

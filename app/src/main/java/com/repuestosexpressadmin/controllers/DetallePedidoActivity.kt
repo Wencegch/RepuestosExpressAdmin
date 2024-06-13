@@ -37,6 +37,8 @@ class DetallePedidoActivity : AppCompatActivity() {
     private lateinit var textoFecha: TextView
     private lateinit var textoEstado: TextView
     private lateinit var textoTotal: TextView
+    private lateinit var textoDireccion: TextView
+    private lateinit var textoMetodoPago: TextView
     private lateinit var btnCancelar: Button
     private lateinit var btnFinalizarPedido: Button
 
@@ -53,6 +55,8 @@ class DetallePedidoActivity : AppCompatActivity() {
         textoPedidoId = findViewById(R.id.txtDetallePedidoId)
         textoFecha = findViewById(R.id.txtDetallePedidoFecha)
         textoEstado = findViewById(R.id.txtDetallePedidoEstado)
+        textoDireccion = findViewById(R.id.txtDetallePedidoDireccion)
+        textoMetodoPago = findViewById(R.id.txtDetallePedidoMetodoPago)
         textoTotal = findViewById(R.id.txtDetallePedidoPrecio)
         btnCancelar = findViewById(R.id.btn_CancelarPedido)
         btnFinalizarPedido = findViewById(R.id.btn_FinalizarPedido)
@@ -88,7 +92,8 @@ class DetallePedidoActivity : AppCompatActivity() {
             val fechapar = SimpleDateFormat("dd/MM/yyyy HH:mm:ss").format(pedido!!.fecha)
             textoFecha.text = getString(R.string.fecha, fechapar)
             textoEstado.text = getString(R.string.estado, pedido!!.estado)
-
+            textoDireccion.text = getString(R.string.direccion, pedido!!.direccion)
+            textoMetodoPago.text = getString(R.string.metodo_pago, pedido!!.metodoPago)
             // Obtener productos para las líneas de pedido
             obtenerProductosParaLineas()
         }

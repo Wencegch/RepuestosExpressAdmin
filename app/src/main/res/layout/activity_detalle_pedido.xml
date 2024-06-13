@@ -7,11 +7,23 @@
     android:layout_height="match_parent"
     tools:context=".controllers.DetallePedidoActivity">
 
+    <TextView
+        android:id="@+id/txtDetallePedidoDireccion"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_marginStart="32dp"
+        android:text="@string/direccion"
+        app:layout_constraintBottom_toBottomOf="parent"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintHorizontal_bias="0.0"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toBottomOf="@+id/txtDetallePedidoEstado"
+        app:layout_constraintVertical_bias="0.02" />
+
     <androidx.recyclerview.widget.RecyclerView
         android:id="@+id/recyclerViewDetallePedido"
         android:layout_width="0dp"
         android:layout_height="303dp"
-        android:layout_marginBottom="88dp"
         app:layout_constraintBottom_toBottomOf="parent"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintHorizontal_bias="0.0"
@@ -35,49 +47,53 @@
         android:id="@+id/txtDetallePedidoId"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
+        android:layout_marginStart="32dp"
         android:text="@string/id"
         app:layout_constraintBottom_toBottomOf="parent"
         app:layout_constraintEnd_toEndOf="parent"
-        app:layout_constraintHorizontal_bias="0.133"
+        app:layout_constraintHorizontal_bias="0.0"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toTopOf="parent"
-        app:layout_constraintVertical_bias="0.071" />
+        app:layout_constraintVertical_bias="0.074" />
 
     <TextView
         android:id="@+id/txtDetallePedidoFecha"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
+        android:layout_marginStart="32dp"
         android:text="@string/fecha"
         app:layout_constraintBottom_toBottomOf="parent"
         app:layout_constraintEnd_toEndOf="parent"
-        app:layout_constraintHorizontal_bias="0.142"
+        app:layout_constraintHorizontal_bias="0.0"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toBottomOf="@+id/txtDetallePedidoId"
-        app:layout_constraintVertical_bias="0.023" />
+        app:layout_constraintVertical_bias="0.018" />
 
     <TextView
         android:id="@+id/txtDetallePedidoEstado"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
+        android:layout_marginStart="32dp"
         android:text="@string/estado"
         app:layout_constraintBottom_toBottomOf="parent"
         app:layout_constraintEnd_toEndOf="parent"
-        app:layout_constraintHorizontal_bias="0.143"
+        app:layout_constraintHorizontal_bias="0.0"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toBottomOf="@+id/txtDetallePedidoFecha"
-        app:layout_constraintVertical_bias="0.021" />
+        app:layout_constraintVertical_bias="0.019" />
 
     <TextView
         android:id="@+id/txtDetallePedidoPrecio"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
+        android:layout_marginStart="32dp"
         android:text="@string/total"
         app:layout_constraintBottom_toBottomOf="parent"
         app:layout_constraintEnd_toEndOf="parent"
-        app:layout_constraintHorizontal_bias="0.146"
+        app:layout_constraintHorizontal_bias="0.0"
         app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toBottomOf="@+id/txtDetallePedidoEstado"
-        app:layout_constraintVertical_bias="0.027" />
+        app:layout_constraintTop_toBottomOf="@+id/txtDetallePedidoMetodoPago"
+        app:layout_constraintVertical_bias="0.025" />
 
     <Button
         android:id="@+id/btn_FinalizarPedido"
@@ -91,4 +107,17 @@
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toBottomOf="@+id/recyclerViewDetallePedido"
         app:layout_constraintVertical_bias="0.2" />
+
+    <TextView
+        android:id="@+id/txtDetallePedidoMetodoPago"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_marginStart="32dp"
+        android:text="@string/metodo_pago"
+        app:layout_constraintBottom_toBottomOf="parent"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintHorizontal_bias="0.0"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toBottomOf="@+id/txtDetallePedidoDireccion"
+        app:layout_constraintVertical_bias="0.016" />
 </androidx.constraintlayout.widget.ConstraintLayout>

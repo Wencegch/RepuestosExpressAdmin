@@ -66,6 +66,7 @@ class SubirFamiliaActivity : AppCompatActivity(), Firebase.OnSubirFamiliaListene
                 if(txtInfoFamilia.text.isNotEmpty()) {
                     val familia = Familia(txtNombreFamilia.text.toString(), txtInfoFamilia.text.toString(), "")
                     firebase.crearFamilia(familia, this)
+                    btnAddFamilia.isEnabled = false
                 } else {
                     txtInfoFamilia.error = getString(R.string.requerido)
                 }

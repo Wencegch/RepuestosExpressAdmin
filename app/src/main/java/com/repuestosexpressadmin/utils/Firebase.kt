@@ -509,9 +509,11 @@ class Firebase {
                     val usuario = document.getString("usuario")
                     val estado = document.getString("estado")
                     val fecha = document.getDate("fecha")
+                    val direccion = document.getString("direccion")
+                    val metodoPago = document.getString("metodoPago")
 
-                    if (usuario != null && estado != null && fecha != null) {
-                        val pedido = Pedido(idPedido, usuario, estado, fecha)
+                    if (usuario != null && estado != null && fecha != null && direccion != null && metodoPago != null) {
+                        val pedido = Pedido(idPedido, usuario, estado, fecha, direccion, metodoPago)
                         listaPedidos.add(pedido)
                     }
                 }
@@ -538,9 +540,11 @@ class Firebase {
                     val usuario = document.getString("usuario")
                     val estado = document.getString("estado")
                     val fecha = document.getDate("fecha")
+                    val direccion = document.getString("direccion")
+                    val metodoPago = document.getString("metodoPago")
 
-                    if (usuario != null && estado != null && fecha != null) {
-                        val pedido = Pedido(idPedido, usuario, estado, fecha)
+                    if (usuario != null && estado != null && fecha != null && direccion != null && metodoPago != null) {
+                        val pedido = Pedido(idPedido, usuario, estado, fecha, direccion, metodoPago)
                         listaPedidos.add(pedido)
                     }
                 }

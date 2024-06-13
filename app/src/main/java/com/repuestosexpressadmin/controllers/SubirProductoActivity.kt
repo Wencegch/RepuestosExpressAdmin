@@ -90,6 +90,7 @@ class SubirProductoActivity : AppCompatActivity(), Firebase.OnSubirProductoListe
                     if (precio != null && precio > 0)  {
                         val producto = Producto(txtNombreProducto.text.toString(), precio, "", idFamilia!!)
                         firebase.crearProducto(producto, this)
+                        btnAddProducto.isEnabled = false
                     } else {
                         Utils.Toast(this, getString(R.string.ingresar_precio_valido))
                     }

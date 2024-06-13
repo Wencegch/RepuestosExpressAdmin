@@ -58,4 +58,6 @@
     <string name="correo_electronico">Email</string>
     <string name="contraseña">Password</string>
     <string name="inicio_sesion">Log in</string>
+    <string name="direccion">Address: %1$s</string>
+    <string name="metodo_pago">Method of payment: %1$s</string>
 </resources>
