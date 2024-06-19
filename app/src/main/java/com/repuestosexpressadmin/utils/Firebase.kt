@@ -240,20 +240,21 @@ class Firebase {
         val listaProductos = mutableListOf<Producto>()
         referenceProductos
             .whereEqualTo("eliminado", false)
-            .get().addOnSuccessListener { querySnapshot ->
-            for (document in querySnapshot.documents) {
-                val idProducto = document.id
-                val nombre = document.getString("nombre")
-                val precio = document.getDouble("precio")
-                val imgUrl = document.getString("imgUrl")
-                val idFamilia = document.getString("idFamilia")
+            .get()
+            .addOnSuccessListener { querySnapshot ->
+                for (document in querySnapshot.documents) {
+                    val idProducto = document.id
+                    val nombre = document.getString("nombre")
+                    val precio = document.getDouble("precio")
+                    val imgUrl = document.getString("imgUrl")
+                    val idFamilia = document.getString("idFamilia")
 
-                if (nombre != null && precio != null && imgUrl != null && idFamilia != null) {
-                    val producto = Producto(idProducto, nombre, precio.toDouble(), imgUrl, idFamilia)
-                    listaProductos.add(producto)
+                    if (nombre != null && precio != null && imgUrl != null && idFamilia != null) {
+                        val producto = Producto(idProducto, nombre, precio.toDouble(), imgUrl, idFamilia)
+                        listaProductos.add(producto)
+                    }
                 }
-            }
-            onComplete(listaProductos)
+                onComplete(listaProductos)
         }.addOnFailureListener { exception ->
             Log.d("Error", "$exception")
             onComplete(emptyList()) // Devolver una lista vacía en caso de error
@@ -266,23 +267,24 @@ class Firebase {
      * @param onComplete La acción a realizar cuando se obtiene el producto.
      */
     fun obtenerProductoPorId(idProducto: String, onComplete: (Producto?) -> Unit) {
-        referenceProductos.document(idProducto).get().addOnSuccessListener { document ->
-            if (document != null && document.exists()) {
-                val idProducto = document.id
-                val nombre = document.getString("nombre")
-                val precio = document.getDouble("precio")
-                val imgUrl = document.getString("imgUrl")
-                val idFamilia = document.getString("idFamilia")
+        referenceProductos.document(idProducto).get()
+            .addOnSuccessListener { document ->
+                if (document != null && document.exists()) {
+                    val idProducto = document.id
+                    val nombre = document.getString("nombre")
+                    val precio = document.getDouble("precio")
+                    val imgUrl = document.getString("imgUrl")
+                    val idFamilia = document.getString("idFamilia")
 
-                if (nombre != null && precio != null && imgUrl != null && idFamilia != null) {
-                    val producto = Producto(idProducto, nombre, precio.toDouble(), imgUrl, idFamilia)
-                    onComplete(producto)
+                    if (nombre != null && precio != null && imgUrl != null && idFamilia != null) {
+                        val producto = Producto(idProducto, nombre, precio.toDouble(), imgUrl, idFamilia)
+                        onComplete(producto)
+                    } else {
+                        onComplete(null) // Devolver null si falta algún campo
+                    }
                 } else {
-                    onComplete(null) // Devolver null si falta algún campo
+                    onComplete(null) // Devolver null si no se encuentra ningún documento
                 }
-            } else {
-                onComplete(null) // Devolver null si no se encuentra ningún documento
-            }
         }.addOnFailureListener { exception ->
             Log.d("Error", "$exception")
             onComplete(null) // Devolver null en caso de error
@@ -363,7 +365,7 @@ class Firebase {
             storageRef.putFile(imagenUri)
                 .addOnSuccessListener {
                     // Obtener la URL de descarga de la imagen subida
-                    storageRef.downloadUrl.addOnSuccessListener { downloadUrl -> //3 -> cuando tenemos la url, modificamos ese elemento
+                    storageRef.downloadUrl.addOnSuccessListener { downloadUrl -> //cuando tenemos la url, modificamos ese elemento
                         val url = downloadUrl.toString()
                         //modificamos el producto, teniendo ahora la url de descarga
                         referenceProductos.document(id)
@@ -631,7 +633,7 @@ class Firebase {
         referencePedidos.document(id)
             .update("estado", estado)
             .addOnSuccessListener {
-                Log.d("Pedido actualizado", "Sí")
+                Log.i("Pedido actualizado", "Sí")
 
                 // Obtener las líneas del pedido
                 referencePedidos.document(id).collection("lineas")

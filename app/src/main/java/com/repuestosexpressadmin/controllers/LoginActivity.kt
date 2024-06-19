@@ -1,8 +1,8 @@
 package com.repuestosexpressadmin.controllers
 
+import android.content.Context
 import android.content.Intent
 import android.os.Bundle
-import android.preference.PreferenceManager
 import android.widget.Button
 import android.widget.CheckBox
 import android.widget.EditText
@@ -29,9 +29,9 @@ class LoginActivity : AppCompatActivity() {
         loadPreferences()
 
         btnLogin.setOnClickListener {
-            if (txtEmail.text.toString().isNotEmpty()) {
-                if (txtPassword.text.toString().isNotEmpty()) {
-                    Firebase().iniciarSesion(txtEmail.text.toString()) { success ->
+            if (txtEmail.text.toString().trim().isNotEmpty()) {
+                if (txtPassword.text.toString().trim().isNotEmpty()) {
+                    Firebase().iniciarSesion(txtEmail.text.toString().trim()) { success ->
                         if (success) {
                             saveUserPreferences()
                             val intent = Intent(this, MainActivity::class.java)
@@ -55,33 +55,31 @@ class LoginActivity : AppCompatActivity() {
     private fun saveUserPreferences() {
         val activado: Boolean
         // se crea un objeto SharedPreferences que se utiliza para almacenar las preferencias
-        val sharedPreferences = PreferenceManager.getDefaultSharedPreferences(this@LoginActivity)
+        val sharedPreferences = getSharedPreferences("USER_PREFS", Context.MODE_PRIVATE)
 
         if (saveEmail.isChecked) {
             activado = true
             // se almacena el email (obtenido del objeto txtEmail)
-            sharedPreferences.edit().putString("EMAIL", txtEmail.text.toString()).commit()
+            sharedPreferences.edit().putString("EMAIL", txtEmail.text.toString()).apply()
             val editor = sharedPreferences.edit()
-
             editor.putBoolean("SAVE_EMAIL", activado)
             editor.apply()
         } else {
             activado = false
-
-            sharedPreferences.edit().remove("EMAIL").commit()
+            sharedPreferences.edit().remove("EMAIL").apply()
             val editor = sharedPreferences.edit()
-
             editor.putBoolean("SAVE_EMAIL", activado)
             editor.apply()
         }
     }
+
 
     /**
      * Carga las preferencias de usuario.
      */
     private fun loadPreferences() {
         // se obtiene el objeto SharedPreferences que se utilizó para almacenar las preferencias en el método saveUserPreferences
-        val sharedPreferences = PreferenceManager.getDefaultSharedPreferences(this@LoginActivity)
+        val sharedPreferences = getSharedPreferences("USER_PREFS", Context.MODE_PRIVATE)
         // se obtiene el valor booleano save asociado con la clave "SAVE_EMAIL" utilizando el método getBoolean()
         val save = sharedPreferences.getBoolean("SAVE_EMAIL", false)
 
@@ -91,4 +89,5 @@ class LoginActivity : AppCompatActivity() {
             saveEmail.isChecked = true
         }
     }
+
 }

@@ -73,7 +73,6 @@ class SubirProductoActivity : AppCompatActivity(), Firebase.OnSubirProductoListe
 
         supportActionBar?.apply {
             title = getString(R.string.nuevo_producto)
-            setBackgroundDrawable(ContextCompat.getDrawable(this@SubirProductoActivity, R.color.green))
         }
 
         btnSubirImagen.setOnClickListener {
@@ -83,7 +82,7 @@ class SubirProductoActivity : AppCompatActivity(), Firebase.OnSubirProductoListe
         btnAddProducto.setOnClickListener {
             val idFamilia = intent.getStringExtra("idFamilia")
 
-            if (txtNombreProducto.text.isNotEmpty()) {
+            if (txtNombreProducto.text.trim().isNotEmpty()) {
                 if (txtPrecioProducto.text.isNotEmpty()) {
                     val precio = txtPrecioProducto.text.toString().toDoubleOrNull()
 

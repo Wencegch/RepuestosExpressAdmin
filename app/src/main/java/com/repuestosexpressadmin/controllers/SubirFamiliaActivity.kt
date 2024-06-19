@@ -54,7 +54,6 @@ class SubirFamiliaActivity : AppCompatActivity(), Firebase.OnSubirFamiliaListene
 
         supportActionBar?.apply {
             title = getString(R.string.nueva_familia)
-            setBackgroundDrawable(ContextCompat.getDrawable(this@SubirFamiliaActivity, R.color.green))
         }
 
         btnSubirImagenFamilia.setOnClickListener {
@@ -62,8 +61,8 @@ class SubirFamiliaActivity : AppCompatActivity(), Firebase.OnSubirFamiliaListene
         }
 
         btnAddFamilia.setOnClickListener {
-            if (txtNombreFamilia.text.isNotEmpty()) {
-                if(txtInfoFamilia.text.isNotEmpty()) {
+            if (txtNombreFamilia.text.trim().isNotEmpty()) {
+                if(txtInfoFamilia.text.trim().isNotEmpty()) {
                     val familia = Familia(txtNombreFamilia.text.toString(), txtInfoFamilia.text.toString(), "")
                     firebase.crearFamilia(familia, this)
                     btnAddFamilia.isEnabled = false
@@ -92,8 +91,8 @@ class SubirFamiliaActivity : AppCompatActivity(), Firebase.OnSubirFamiliaListene
                         val source: ImageDecoder.Source = ImageDecoder.createSource(contentResolver, imagenUri!!)
                         bitmap = ImageDecoder.decodeBitmap(source)
                         imgSubirFamilia.setImageBitmap(bitmap)
-                    } catch (e: IOException) {
-                        e.printStackTrace()
+                    } catch (ioException: IOException) {
+                        Log.e("SubirFamiliaActivity", "Error al cargar la imagen: ${ioException.message}")
                     }
                 }
             }

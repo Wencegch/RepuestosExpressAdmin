@@ -13,7 +13,6 @@ import android.view.ViewGroup
 import android.widget.EditText
 import androidx.activity.result.contract.ActivityResultContracts
 import androidx.appcompat.app.AppCompatActivity
-import androidx.core.content.ContextCompat
 import androidx.core.widget.addTextChangedListener
 import androidx.fragment.app.Fragment
 import androidx.recyclerview.widget.LinearLayoutManager
@@ -62,7 +61,6 @@ class FamiliasFragment : Fragment() {
 
         (requireActivity() as AppCompatActivity).supportActionBar?.apply {
             title = getString(R.string.familias)
-            setBackgroundDrawable(ContextCompat.getDrawable(requireContext(), R.color.green))
         }
 
         txtFiltroFamilia = view.findViewById(R.id.txtFiltroFamilia)
@@ -120,8 +118,10 @@ class FamiliasFragment : Fragment() {
 
                 if (familiaSeleccionada.selected && mActionMode == null) {
                     mActionMode = requireActivity().startActionMode(mActionCallback)
-                } else if (!familiaSeleccionada.selected && mActionMode != null) {
-                    mActionMode!!.finish()
+                } else {
+                    if (!familiaSeleccionada.selected && mActionMode != null) {
+                        mActionMode!!.finish()
+                    }
                 }
             }
         })

@@ -1,11 +1,9 @@
 package com.repuestosexpressadmin.controllers
 
 import android.os.Bundle
-import android.util.Log
 import android.widget.Button
 import android.widget.TextView
 import androidx.appcompat.app.AppCompatActivity
-import androidx.core.content.ContextCompat
 import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.RecyclerView
 import com.iamageo.library.BeautifulDialog
@@ -31,7 +29,7 @@ class DetallePedidoActivity : AppCompatActivity() {
     private var pedido: Pedido? = null
     private lateinit var recyclerView: RecyclerView
     private lateinit var detalleAdapter: RecyclerAdapterDetallePedidos
-    private lateinit var pedidos: ArrayList<LineasPedido>
+    private lateinit var lineasPedido: ArrayList<LineasPedido>
     private lateinit var productos: ArrayList<Producto>
     private lateinit var textoPedidoId: TextView
     private lateinit var textoFecha: TextView
@@ -64,16 +62,15 @@ class DetallePedidoActivity : AppCompatActivity() {
         // Configuración de la ActionBar
         supportActionBar?.apply {
             title = getString(R.string.detalles_pedido)
-            setBackgroundDrawable(ContextCompat.getDrawable(this@DetallePedidoActivity, R.color.green))
         }
 
         // Inicialización de listas
-        pedidos = ArrayList()
+        lineasPedido = ArrayList()
         productos = ArrayList()
 
         // Configuración del RecyclerView
         recyclerView.layoutManager = LinearLayoutManager(this, LinearLayoutManager.HORIZONTAL, false)
-        detalleAdapter = RecyclerAdapterDetallePedidos(pedidos)
+        detalleAdapter = RecyclerAdapterDetallePedidos(lineasPedido)
         recyclerView.adapter = detalleAdapter
 
         // Obtención del pedido desde el intent
@@ -87,7 +84,7 @@ class DetallePedidoActivity : AppCompatActivity() {
 
         // Obtención de líneas de pedido desde Firebase
         Firebase().obtenerLineasDePedido(pedido!!.id) { listaPedidos ->
-            pedidos.addAll(listaPedidos)
+            lineasPedido.addAll(listaPedidos)
             textoPedidoId.text = getString(R.string.id, pedido!!.id)
             val fechapar = SimpleDateFormat("dd/MM/yyyy HH:mm:ss").format(pedido!!.fecha)
             textoFecha.text = getString(R.string.fecha, fechapar)
@@ -129,7 +126,6 @@ class DetallePedidoActivity : AppCompatActivity() {
                 .onPositive(text = getString(android.R.string.ok), shouldIDismissOnClick = true) {
                     Firebase().actualizarEstadoPedido(pedido!!.id, "Finalizado"){ success ->
                         if (success) {
-                            Log.d("Pedido", "Pedido Finalizado")
                             Utils.Toast(this, getString(R.string.pedido_finalizado))
                             setResult(RESULT_OK)
                             finish()
@@ -146,7 +142,7 @@ class DetallePedidoActivity : AppCompatActivity() {
      * Obtiene los productos para las líneas de pedido y actualiza el adaptador.
      */
     private fun obtenerProductosParaLineas() {
-        var pendingCallbacks = pedidos.size
+        var pendingCallbacks = lineasPedido.size
         if (pendingCallbacks == 0) {
             detalleAdapter.notifyDataSetChanged()
             return
@@ -154,11 +150,11 @@ class DetallePedidoActivity : AppCompatActivity() {
 
         var total = 0.0
 
-        for (lineaPedido in pedidos) {
+        for (lineaPedido in lineasPedido) {
             Firebase().obtenerProductoPorId(lineaPedido.idProducto) { producto ->
-                producto?.let {
-                    productos.add(it)
-                    total += it.precio * lineaPedido.cantidad
+                producto?.let { productoObtenido ->
+                    productos.add(productoObtenido)
+                    total += productoObtenido.precio * lineaPedido.cantidad
                 }
                 pendingCallbacks--
                 if (pendingCallbacks == 0) {

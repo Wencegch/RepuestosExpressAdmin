@@ -51,7 +51,6 @@ class MainActivity : AppCompatActivity() {
 
         // Si el fragmento actual es PedidosFragment o FamiliasFragment, cambia al fragmento SugerenciasFragment
         if (currentFragment is PedidosFragment || currentFragment is FamiliasFragment) {
-            replaceFragment(SugerenciasFragment())
             // Cada vez que se presiona el botón de retroceso, se cambia el elemento seleccionado en el BottomNavigationView al elemento de inicio
             binding.bottomNavigation.selectedItemId = R.id.navigation_sugerencias
         } else {

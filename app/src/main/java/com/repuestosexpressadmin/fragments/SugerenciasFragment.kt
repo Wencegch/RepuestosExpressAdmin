@@ -8,7 +8,6 @@ import android.view.MenuItem
 import android.view.View
 import android.view.ViewGroup
 import androidx.appcompat.app.AppCompatActivity
-import androidx.core.content.ContextCompat
 import androidx.fragment.app.Fragment
 import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.RecyclerView
@@ -40,7 +39,6 @@ class SugerenciasFragment : Fragment() {
 
         (activity as AppCompatActivity?)?.supportActionBar?.apply {
             title = getString(R.string.sugerencias)
-            setBackgroundDrawable(ContextCompat.getDrawable(requireContext(), R.color.green))
         }
 
         productos = ArrayList()

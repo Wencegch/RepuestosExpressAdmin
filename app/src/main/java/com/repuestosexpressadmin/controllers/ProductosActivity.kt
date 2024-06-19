@@ -8,7 +8,6 @@ import android.view.MenuItem
 import android.widget.EditText
 import androidx.activity.result.contract.ActivityResultContracts
 import androidx.appcompat.app.AppCompatActivity
-import androidx.core.content.ContextCompat
 import androidx.core.widget.addTextChangedListener
 import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.RecyclerView
@@ -51,7 +50,6 @@ class ProductosActivity : AppCompatActivity() {
 
         supportActionBar?.apply {
             title = intent.getStringExtra("Nombre")
-            setBackgroundDrawable(ContextCompat.getDrawable(this@ProductosActivity, R.color.green))
         }
 
         recyclerView = findViewById(R.id.recyclerViewProductos)
@@ -93,8 +91,10 @@ class ProductosActivity : AppCompatActivity() {
 
                 if (productoSeleccionado.selected && mActionMode == null) {
                     mActionMode = startActionMode(mActionCallback)!!
-                } else if (!productoSeleccionado.selected && mActionMode != null) {
+                } else {
+                    if (!productoSeleccionado.selected && mActionMode != null) {
                     mActionMode!!.finish()
+                    }
                 }
             }
         })
