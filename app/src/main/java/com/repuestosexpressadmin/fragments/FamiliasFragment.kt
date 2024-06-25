@@ -94,7 +94,7 @@ class FamiliasFragment : Fragment() {
                 if (haySeleccionadas) {
                     mActionMode?.finish()
                 } else {
-                    val familiaSeleccionada = familias[position]
+                    val familiaSeleccionada = familiasFiltradas[position]
                     val intent = Intent(requireContext(), ProductosActivity::class.java).apply {
                         putExtra("Idfamilia", familiaSeleccionada.id)
                         putExtra("Nombre", familiaSeleccionada.nombre)
